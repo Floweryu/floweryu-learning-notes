@@ -1002,21 +1002,11 @@ public final boolean release(int arg)
 ```
 
 - `acquire` - 获取独占锁。
-
 - `acquireInterruptibly` - 获取可中断的独占锁。
-
-- ```
-  tryAcquireNanos
-  ```
-
-   
-
-  \- 尝试在指定时间内获取可中断的独占锁。在以下三种情况下回返回：
-
+- `tryAcquireNanos` - 尝试在指定时间内获取可中断的独占锁。在以下三种情况下回返回：
   - 在超时时间内，当前线程成功获取了锁；
   - 当前线程在超时时间内被中断；
   - 超时时间结束，仍未获得锁返回 false。
-
 - `release` - 释放独占锁。
 
 ### 共享锁 API
