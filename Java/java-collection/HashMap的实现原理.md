@@ -1,86 +1,343 @@
-﻿#### 参考文章（本文图文均来自此）：
-- [https://www.cnblogs.com/jing99/p/11330341.html](https://www.cnblogs.com/jing99/p/11330341.html)
+### HashMap 要点
 
-> 本文是在参考文章的基础上自己总结，因为觉得不亲手总结一下不好消化。也请多去原文查看，原文内容比本文生动，有图有代码。如果侵权，请联系我删除！！
+从 `HashMap` 的命名，也可以看出：**`HashMap` 以散列方式存储键值对**。
 
-### 前叙：
-先看看其他数据结构在查询、新增和删除这几个方面的性能：
+**`HashMap` 允许使用空值和空键**。（`HashMap` 类大致等同于 `Hashtable`，除了它是不同步的并且允许为空值。）这个类不保序；特别是，它的元素顺序可能会随着时间的推移变化。
 
- - **数组**：采用连续的存储空间来存储数据。对于指定下标的查找，时间复杂度为O(1)。对于给定的值的查找，时间复杂度为O(n)，因为要遍历数组，寻找值相等项。但是，对于有序数组的查找，可以使用二分等算法，时间复杂度降为O(logn)；对于一般的插入操作，由于要移动数组元素，所以平均时间复杂度为O(n)。
- - **线性链表**：对于新增和删除操作（这里指在找到新增和删除的位置后），仅需要处理节点即可，时间复杂度为O(1)；对于查询操作，则需要遍历链表，时间复杂度为O(n)。
- - **二叉树**：对于有序的平衡二叉树，查找、删除和新增的时间复杂度为O(logn)。
- - **哈希表**：在哈希表中进行添加，删除，查找等操作，性能很高，不考虑哈希冲突的情况下，仅需一次定位即可完成，时间复杂度为O(1)。
-
-数据存储的物理结构映射到最底层就是两种：**顺序存储结构**和**链式存储结构**。
-
-哈希表的主干是数组，当需要查询某个元素，只需要通过**哈希函数**将当前关键字映射到数组的对应下标处，然后通过数组下标取值一次即可完成。
-
-**哈希冲突**：当两个哈希函数计算的地址相同怎么处理？？这就会产生**哈希冲突**。解决哈希冲突的方法有：**开放定址法**（发生冲突，继续寻找下一块未被占用的存储地址），**再散列函数法**，**链地址法**。而**HashMap即是采用了链地址法，也就是数组+链表的方式**。
-
-### 一、 `HashMap`的实现原理
-HashMap的主干是一个Entry数组。Entry是HashMap的基本组成单元，每一个Entry包含一个key-value键值对。
+**`HashMap` 有两个影响其性能的参数：初始容量和负载因子**。
 
 ```java
-transient Entry<K,V>[] table = (Entry<K,V>[]) EMPTY_TABLE;
+    /**
+     * The default initial capacity - MUST be a power of two.
+     */
+    static final int DEFAULT_INITIAL_CAPACITY = 1 << 4; // aka 16
+
+    /**
+     * The maximum capacity, used if a higher value is implicitly specified
+     * by either of the constructors with arguments.
+     * MUST be a power of two <= 1<<30.
+     */
+    static final int MAXIMUM_CAPACITY = 1 << 30;
+
+    /**
+     * The load factor used when none specified in constructor.
+     */
+    static final float DEFAULT_LOAD_FACTOR = 0.75f;
 ```
-因此，HashMap的整体结构如下：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201109082428159.png#pic_center)
-HashMap是由数组+链表组成的，数组是HashMap的主体，链表是为了解决哈希冲突而存在的。如果定位到的数组位置不含链表，则查找、添加操作很快，实践复杂度为O(1)。如果定位到数组包含链表，对应于添加操作，时间复杂度为O(1)，对于查找操作时间复杂度就不是O(1)，因为要遍历链表部分。所以，HashMap中链表越少越好，也就是冲突越少越好。
-几个重要字段：
+
+
+
+- 容量是哈希表中桶的数量，初始容量就是哈希表创建时的容量。
+- 加载因子是散列表在其容量自动扩容之前被允许的最大饱和量。当哈希表中的 entry 数量超过负载因子和当前容量的乘积时，散列表就会被重新映射（即重建内部数据结构），一般散列表大约是存储桶数量的两倍。
+
+> 加载因子 = 填入表中的元素个数 / 散列表的长度
+>
+> - 加载因子越大，填的元素个数越多，空间利用率高，但是发生冲突的机会也变大。
+> - 加载因子越小，填的元素个数越少，空间利用率低，发生冲突机会减小，提高扩容rehash的次数。
+
+通常，默认加载因子（0.75）在时间和空间成本之间提供了良好的平衡。HashMap的初始容量大小默认是16，为了减少冲突发生的概率，当HashMap的数组长度到达一个临界值的时候，就会触发扩容，把所有元素rehash之后再放在扩容后的容器中，这是一个相当耗时的操作。
+
+> 临界值 = DEFAULT_INITIAL_CAPACITY * DEFAULT_LOAD_FACTOR
+>
+> 即默认情况下是16x0.75=12时，就会触发扩容操作。
+
+`HashMap` 不是线程安全的。
+
+### HashMap 原理
+
+#### HashMap 数据结构
+
+`JDK1.8之后`：
+
+- 数据结构：**数组＋单链表＋红黑树**。原先 `数组＋单链表` 的数据结构，变更为 `数组＋单链表＋红黑树` 的结构。当出现哈希冲突时，数据会存入数组指定桶的单链表，**当链表长度达到 8，则将其转换为红黑树结构，长度为6时，又会转换为链表**，这样其查询的时间复杂度可以降低到 $O(logN)$，以改进性能（因为链表的查询性能较差，改成红黑树查询效率更高）
+
+`HashMap` 的核心字段：
+
+- `table` - `HashMap` 使用一个 `Node[]` 类型的数组 `table` 来储存元素。
+- `size` - 初始容量。 初始为 16，每次容量不够自动扩容
+- `loadFactor` - 负载因子。自动扩容之前被允许的最大饱和量，默认 0.75。
 
 ```java
-//实际存储的key-value键值对的个数
-transient int size;
-//阈值，当table == {}时，该值为初始容量（初始容量默认为16）；当table被填充了，也就是为table分配内存空间后，threshold一般为 capacity*loadFactory。HashMap在进行扩容时需要参考threshold，后面会详细谈到
-int threshold;
-//负载因子，代表了table的填充度有多少，默认是0.75
-final float loadFactor;
-//用于快速失败，由于HashMap非线程安全，在对HashMap进行迭代时，如果期间其他线程的参与导致HashMap的结构发生变化了（比如put，remove等操作），需要抛出异常ConcurrentModificationException
-transient int modCount;
+public class HashMap<K,V> extends AbstractMap<K,V>
+    implements Map<K,V>, Cloneable, Serializable {
+
+    // 该表在初次使用时初始化，并根据需要调整大小。分配时，长度总是2的幂。
+    transient Node<K,V>[] table;
+    // 保存缓存的 entrySet()。请注意，AbstractMap 字段用于 keySet() 和 values()。
+    transient Set<Map.Entry<K,V>> entrySet;
+    // map 中的键值对数
+    transient int size;
+    // 这个HashMap被结构修改的次数结构修改是那些改变HashMap中的映射数量或者修改其内部结构（例如，重新散列）的修改。
+    transient int modCount;
+    // 下一个调整大小的值（容量*加载因子）。
+    int threshold;
+    // 散列表的加载因子
+    final float loadFactor;
+    
+    // 当链表中的节点大于等于8时，链表会转换为红黑树
+    static final int TREEIFY_THRESHOLD = 8;
+	
+    // 当链表中的节点小于等于6时，红黑树会转换为链表
+    static final int UNTREEIFY_THRESHOLD = 6;
+}
 ```
-### 中间看源码那一部分先跳过
-贴几个重要源码片段
+
+#### HashMap 构造方法
+
 ```java
-//这是一个神奇的函数，用了很多的异或，移位等运算，对key的hashcode进一步进行计算以及二进制位的调整等来保证最终获取的存储位置尽量分布均匀
-final int hash(Object k) {
-        int h = hashSeed;
-        if (0 != h && k instanceof String) {
-            return sun.misc.Hashing.stringHash32((String) k);
+public HashMap(); // 默认加载因子0.75
+public HashMap(int initialCapacity); // 默认加载因子0.75；以 initialCapacity 初始化容量
+public HashMap(int initialCapacity, float loadFactor); // 以 initialCapacity 初始化容量；以 loadFactor 初始化加载因子
+public HashMap(Map<? extends K, ? extends V> m) // 默认加载因子0.75
+```
+
+#### put 方法的实现
+
+put 方法大致的思路为：
+
+- 对 key 的 `hashCode()` 做 hash 计算，然后根据 hash 值再计算 Node 的存储位置;
+- 如果没有哈希碰撞，直接放到桶里；如果有哈希碰撞，以链表的形式存在桶后。
+- 如果哈希碰撞导致链表过长(大于等于 `TREEIFY_THRESHOLD`，数值为 8)，就把链表转换成红黑树；
+- 如果节点已经存在就替换旧值
+- 桶数量超过 容量*负载因子（即 load factor * current capacity），HashMap 调用 `resize` 自动扩容一倍
+
+```java
+public V put(K key, V value) {
+    return putVal(hash(key), key, value, false, true);
+}
+
+static final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+}
+
+final V putVal(int hash, K key, V value, boolean onlyIfAbsent,
+                   boolean evict) {
+    Node<K,V>[] tab; Node<K,V> p; int n, i;
+    if ((tab = table) == null || (n = tab.length) == 0)
+        n = (tab = resize()).length;
+    if ((p = tab[i = (n - 1) & hash]) == null)
+        tab[i] = newNode(hash, key, value, null);
+    else {
+        Node<K,V> e; K k;
+        if (p.hash == hash &&
+            ((k = p.key) == key || (key != null && key.equals(k))))
+            e = p;
+        else if (p instanceof TreeNode)
+            e = ((TreeNode<K,V>)p).putTreeVal(this, tab, hash, key, value);
+        else {
+            for (int binCount = 0; ; ++binCount) {
+                if ((e = p.next) == null) {
+                    p.next = newNode(hash, key, value, null);
+                    if (binCount >= TREEIFY_THRESHOLD - 1) // -1 for 1st
+                        treeifyBin(tab, hash);
+                    break;
+                }
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    break;
+                p = e;
+            }
         }
- 
-        h ^= k.hashCode();
- 
-        h ^= (h >>> 20) ^ (h >>> 12);
-        return h ^ (h >>> 7) ^ (h >>> 4);
+        if (e != null) { // existing mapping for key
+            V oldValue = e.value;
+            if (!onlyIfAbsent || oldValue == null)
+                e.value = value;
+            afterNodeAccess(e);
+            return oldValue;
+        }
+    }
+    ++modCount;
+    if (++size > threshold)
+        resize();
+    afterNodeInsertion(evict);
+    return null;
+}
+```
+
+**为什么计算 hash 使用 hashcode 无符号位移 16 位？**
+
+假设要添加两个对象 a 和 b，如果数组长度是 16，这时对象 a 和 b 通过公式 (n - 1) & hash 运算，也就是 (16-1)＆a.hashCode 和 (16-1)＆b.hashCode，15 的二进制为 0000000000000000000000000001111，假设对象 A 的 hashCode 为 1000010001110001000001111000000，对象 B 的 hashCode 为 0111011100111000101000010100000，你会发现上述与运算结果都是 0。这样的哈希结果就太让人失望了，很明显不是一个好的哈希算法。
+
+但如果我们将 hashCode 值右移 16 位（h >>> 16 代表[无符号右移](https://blog.csdn.net/cobbwho/article/details/54907203)16 位），刚好可以将该二进制数对半切开，并且使用位异或运算（如果两个数对应的位置相反，则结果为 1，反之为 0），这样的话，就能避免上面的情况发生。这就是 hash() 方法的具体实现方式。**简而言之，就是尽量打乱 hashCode 真正参与运算的低 16 位。**
+
+#### get 方法的实现
+
+在理解了 put 之后，get 就很简单了。大致思路如下：
+
+- 对 key 的 hashCode() 做 hash 计算，然后根据 hash 值再计算桶的 index
+- 如果桶中的第一个节点命中，直接返回；
+- 如果有冲突，则通过 `key.equals(k)` 去查找对应的 entry
+  - 若为树，则在红黑树中通过 key.equals(k) 查找，O(logn)；
+  - 若为链表，则在链表中通过 key.equals(k) 查找，O(n)。
+
+具体代码的实现如下：
+
+```java
+public V get(Object key) {
+    Node<K,V> e;
+    return (e = getNode(hash(key), key)) == null ? null : e.value;
+}
+
+static final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+}
+
+final Node<K,V> getNode(int hash, Object key) {
+    Node<K,V>[] tab; Node<K,V> first, e; int n; K k;
+    if ((tab = table) != null && (n = tab.length) > 0 &&
+        (first = tab[(n - 1) & hash]) != null) {
+        if (first.hash == hash && // always check first node
+            ((k = first.key) == key || (key != null && key.equals(k))))
+            return first;
+        if ((e = first.next) != null) {
+            if (first instanceof TreeNode)
+                return ((TreeNode<K,V>)first).getTreeNode(hash, key);
+            do {
+                if (e.hash == hash &&
+                    ((k = e.key) == key || (key != null && key.equals(k))))
+                    return e;
+            } while ((e = e.next) != null);
+        }
+    }
+    return null;
+}
+```
+
+#### hash 方法的实现
+
+HashMap **计算桶下标（index）公式：`key.hashCode() ^ (h >>> 16)`**。
+
+下面针对这个公式来详细讲解。
+
+在 `get` 和 `put` 的过程中，计算下标时，先对 `hashCode` 进行 `hash` 操作，然后再通过 `hash` 值进一步计算下标，如下图所示：
+
+![img](https://i.loli.net/2021/03/12/d39MzoLh15BxrfN.png)
+
+在对 `hashCode()` 计算 hash 时具体实现是这样的：
+
+```java
+static final int hash(Object key) {
+    int h;
+    return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+}
+```
+
+可以看到这个方法大概的作用就是：高 16bit 不变，低 16bit 和高 16bit 做了一个异或。
+
+在设计 hash 方法时，因为目前的 table 长度 n 为 2 的幂，而计算下标的时候，是这样实现的(使用 `&` 位操作，而非 `%` 求余)：
+
+```java
+(n - 1) & hash
+```
+
+设计者认为这方法很容易发生碰撞。为什么这么说呢？不妨思考一下，在 n - 1 为 15(0x1111) 时，其实散列真正生效的只是低 4bit 的有效位，当然容易碰撞了。
+
+因此，设计者想了一个顾全大局的方法(综合考虑了速度、作用、质量)，就是把高 16bit 和低 16bit 异或了一下。设计者还解释到因为现在大多数的 hashCode 的分布已经很不错了，就算是发生了碰撞也用 O(logn)的 tree 去做了。仅仅异或一下，既减少了系统的开销，也不会造成的因为高位没有参与下标的计算(table 长度比较小时)，从而引起的碰撞。
+
+之前已经提过，在获取 HashMap 的元素时，基本分两步：
+
+1. 首先根据 hashCode()做 hash，然后确定 bucket 的 index；
+2. 如果 bucket 的节点的 key 不是我们需要的，则通过 keys.equals()在链中找。
+
+在 JDK8 之前的实现中是用链表解决冲突的，在产生碰撞的情况下，进行 get 时，两步的时间复杂度是 O(1)+O(n)。因此，当碰撞很厉害的时候 n 很大，O(n)的速度显然是影响速度的。
+
+因此在 JDK8 中，利用红黑树替换链表，这样复杂度就变成了 O(1)+O(logn)了，这样在 n 很大的时候，能够比较理想的解决这个问题，在 JDK8：HashMap 的性能提升一文中有性能测试的结果。
+
+#### resize 的实现
+
+当 `put` 时，如果发现目前的 bucket 占用程度已经超过了 Load Factor 所希望的比例，那么就会发生 resize。在 resize 的过程，简单的说就是把 bucket 扩充为 2 倍，之后重新计算 index，把节点再放到新的 bucket 中。
+
+当超过限制的时候会 resize，然而又因为我们使用的是 2 次幂的扩展(指长度扩为原来 2 倍)，所以，元素的位置要么是在原位置，要么是在原位置再移动 2 次幂的位置。
+
+怎么理解呢？例如我们从 16 扩展为 32 时，具体的变化如下所示:
+
+![img](https://i.loli.net/2021/03/12/bXUQn6AlRIvGt5V.png)
+
+因此元素在重新计算 hash 之后，因为 n 变为 2 倍，那么 n-1 的 mask 范围在高位多 1bit(红色)，因此新的 index 就会发生这样的变化：
+
+![img](https://i.loli.net/2021/03/12/9gyAOu54qXbLHrf.png)
+
+因此，我们在扩充 HashMap 的时候，不需要重新计算 hash，只需要看看原来的 hash 值新增的那个 bit 是 1 还是 0 就好了，是 0 的话索引没变（相与)，是 1 的话索引变成“原索引+oldCap”。可以看看下图为 16 扩充为 32 的 resize 示意图：
+
+![img](https://i.loli.net/2021/03/12/rOVXulzSGT2CZ1a.png)
+
+这个设计确实非常的巧妙，既省去了重新计算 hash 值的时间，而且同时，由于新增的 1bit 是 0 还是 1 可以认为是随机的，因此 resize 的过程，均匀的把之前的冲突的节点分散到新的 bucket 了。
+
+```java
+final Node<K,V>[] resize() {
+        Node<K,V>[] oldTab = table;
+        int oldCap = (oldTab == null) ? 0 : oldTab.length;
+        int oldThr = threshold;
+        int newCap, newThr = 0;
+        if (oldCap > 0) {
+            if (oldCap >= MAXIMUM_CAPACITY) {
+                threshold = Integer.MAX_VALUE;
+                return oldTab;
+            }
+            else if ((newCap = oldCap << 1) < MAXIMUM_CAPACITY &&
+                     oldCap >= DEFAULT_INITIAL_CAPACITY)
+                newThr = oldThr << 1; // double threshold
+        }
+        else if (oldThr > 0) // initial capacity was placed in threshold
+            newCap = oldThr;
+        else {               // zero initial threshold signifies using defaults
+            newCap = DEFAULT_INITIAL_CAPACITY;
+            newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);
+        }
+        if (newThr == 0) {
+            float ft = (float)newCap * loadFactor;
+            newThr = (newCap < MAXIMUM_CAPACITY && ft < (float)MAXIMUM_CAPACITY ?
+                      (int)ft : Integer.MAX_VALUE);
+        }
+        threshold = newThr;
+        @SuppressWarnings({"rawtypes","unchecked"})
+        Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+        table = newTab;
+        if (oldTab != null) {
+            for (int j = 0; j < oldCap; ++j) {
+                Node<K,V> e;
+                if ((e = oldTab[j]) != null) {
+                    oldTab[j] = null;
+                    if (e.next == null)
+                        newTab[e.hash & (newCap - 1)] = e;
+                    else if (e instanceof TreeNode)
+                        ((TreeNode<K,V>)e).split(this, newTab, j, oldCap);
+                    else { // preserve order
+                        Node<K,V> loHead = null, loTail = null;
+                        Node<K,V> hiHead = null, hiTail = null;
+                        Node<K,V> next;
+                        do {
+                            next = e.next;
+                            if ((e.hash & oldCap) == 0) {
+                                if (loTail == null)
+                                    loHead = e;
+                                else
+                                    loTail.next = e;
+                                loTail = e;
+                            }
+                            else {
+                                if (hiTail == null)
+                                    hiHead = e;
+                                else
+                                    hiTail.next = e;
+                                hiTail = e;
+                            }
+                        } while ((e = next) != null);
+                        if (loTail != null) {
+                            loTail.next = null;
+                            newTab[j] = loHead;
+                        }
+                        if (hiTail != null) {
+                            hiTail.next = null;
+                            newTab[j + oldCap] = hiHead;
+                        }
+                    }
+                }
+            }
+        }
+        return newTab;
     }
 ```
 
-```java
-/**
-    * 返回数组下标
-    */
-   static int indexFor(int h, int length) {
-       return h & (length-1);
-   }
-```
-
-### 二、 为什么HashMap的数组长度一定是2的次幂？
-数组的索引位置的计算是通过对key的值的hashcode进行hash扰乱运算后，再通过和length-1进行位运算得到最终数组索引位置。
-
-hashMap的数组长度一定保持2的次幂，比如16的二进制表示为 10000，那么length-1就是15，二进制为01111，同理扩容后的数组长度为32，二进制表示为100000，length-1为31，二进制表示为011111。
-
-从下图可以我们也能看到这样会保证低位全为1，而扩容后只有一位差异，也就是多出了最左位的1，这样在通过 h&(length-1)的时候，只要h对应的最左边的那一个差异位为0，就能保证得到的新的数组索引和老数组索引一致(大大减少了之前已经散列良好的老数组的数据位置重新调换)，这里按作者理解就行。
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201109085047937.png#pic_center)
-还有，数组长度保持2的次幂，length-1的低位都为1，会使得获得的数组索引index更加均匀：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/2020110908535925.png#pic_center)
-上面的&运算，**高位是不会对结果产生影响**的（hash函数采用各种位运算可能也是为了使得低位更加散列），我们只关注低位bit，如果低位全部为1，那么对于h低位部分来说，任何一位的变化都会对结果产生影响，也就是说，要得到index=21这个存储位置，h的低位只有这一种组合。这也是数组长度设计为必须为2的次幂的原因。
-
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201109085458699.png?#pic_center)
-如果不是2的次幂，也就是低位不是全为1此时，要使得index=21，h的低位部分不再具有唯一性了，哈希冲突的几率会变的更大，同时，index对应的这个bit位无论如何不会等于1了，而对应的那些数组位置也就被白白浪费了。
-
-### 参考文章
-
-- [https://blog.csdn.net/javazejian/article/details/51348320](https://blog.csdn.net/javazejian/article/details/51348320)
-- [https://www.cnblogs.com/qianguyihao/p/3929585.html](https://www.cnblogs.com/qianguyihao/p/3929585.html)
-- [https://www.cnblogs.com/jing99/p/11330341.html](https://www.cnblogs.com/jing99/p/11330341.html)
-- [https://www.cnblogs.com/skywang12345/p/3324958.html](https://www.cnblogs.com/skywang12345/p/3324958.html)
