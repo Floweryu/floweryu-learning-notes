@@ -149,7 +149,7 @@ class MyThread extends Thread {
 
 ```
 
-```
+```bash
 输出：可见只有两个线程在工作
 pool-1-thread-2正在执行
 pool-1-thread-1正在执行
@@ -219,7 +219,7 @@ class SingleTasks implements Runnable {
 
 ```
 
-```
+```bash
 pool-1-thread-1正在执行
 pool-1-thread-1执行完毕
 pool-1-thread-1正在执行
@@ -329,7 +329,7 @@ class MyTask implements Runnable {
 }
 ```
 
-```
+```bash
 // 输出如下：
 正在执行task 0
 线程池中线程数目：1，队列中等待执行的任务数目：0，已执行完别的任务数目：0
