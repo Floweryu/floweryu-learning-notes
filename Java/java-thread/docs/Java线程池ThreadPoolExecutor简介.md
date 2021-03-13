@@ -18,6 +18,19 @@
 
 # 3. 线程池参数如下：
 
+```java
+public ThreadPoolExecutor(int corePoolSize,
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          TimeUnit unit,
+                          BlockingQueue<Runnable> workQueue) {
+    this(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue,
+         Executors.defaultThreadFactory(), defaultHandler);
+}
+```
+
+
+
 - `corePoolSize`：线程池核心线程数.
 
   - 如果运行的线程数少于 `corePoolSize`，则创建新线程来处理任务，即使线程池中的其他线程是空闲的。
@@ -76,6 +89,293 @@
 
 # 4. 线程池类型如下
 
-- `newFixedThreadPool`：创建一个核心线程个数和最大线程个数都为`nThreads`的线程池，并且阻塞队列长度为`Integer.MAX_VALUE`。`keeyAliveTime=0`说明只要线程数比核心线程个数多并且当前空闲则回收。
-- `newSingleThreadExecutor`：创建一个核心线程个数和最大线程个数都为1的线程池，并且阻塞队列长度为`Integer.MAX_VALUE`. `keeyAliveTime=0`说明只要线程个数比核心线程个数多并且当前空闲则回收。
-- `newCachedThreadPool`：创建一个按需创建线程的线程池，初始线程个数为0，最多线程个数为`Integer.MAX_VALUE`，并且阻塞队列为同步队列. `keeyAliveTime=60`说明只要当前线程在60s内空闲则回收。这个类型的特殊之处在于，加入同步队列的任务会被马上执行，同步队列里面最多只有一个任务。
+## 4.1 `newFixedThreadPool`
+
+创建一个指定工作线程数量的线程池。每当提交一个任务就创建一个工作线程，如果工作线程数量达到线程池初始的最大数，则将提交的任务存入到池队列中。阻塞队列长度为`Integer.MAX_VALUE`。
+
+```java
+public static ExecutorService newFixedThreadPool(int nThreads) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue<Runnable>());
+}
+
+public static ExecutorService newFixedThreadPool(int nThreads, ThreadFactory threadFactory) {
+    return new ThreadPoolExecutor(nThreads, nThreads,
+                                  0L, TimeUnit.MILLISECONDS,
+                                  new LinkedBlockingQueue<Runnable>(),
+                                  threadFactory);
+}
+```
+
+**特点**：
+
+具有线程池提高程序效率和节省创建线程时所耗的开销的优点。
+
+但是，在线程池空闲时，即线程池中没有可运行任务时，它不会释放工作线程，还会占用一定的系统资源。`keeyAliveTime=0`说明只要线程数比核心线程个数多并且当前空闲则回收。
+
+【示例】
+
+```java
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+
+public class FixedThreadPollDemo {
+    public static void main(String[] args) throws Exception {
+        ExecutorService poll = Executors.newFixedThreadPool(2);
+
+        Thread t1 = new MyThread();
+        Thread t2 = new MyThread();
+        Thread t3 = new MyThread();
+        Thread t4 = new MyThread();
+        Thread t5 = new MyThread();
+        
+        poll.execute(t1);
+        poll.execute(t2);
+        poll.execute(t3);
+        poll.execute(t4);
+        poll.execute(t5);
+        
+        poll.shutdown();
+    }
+}
+
+class MyThread extends Thread {
+    @Override
+    public void run () {
+        System.out.println(Thread.currentThread().getName() + "正在执行");
+    }
+}
+
+```
+
+```
+输出：可见只有两个线程在工作
+pool-1-thread-2正在执行
+pool-1-thread-1正在执行
+pool-1-thread-2正在执行
+pool-1-thread-1正在执行
+pool-1-thread-2正在执行
+```
+
+## 4.2 `newSingleThreadExecutor`
+
+创建一个单线程化的Executor，即**只创建唯一的工作者线程**来执行任务，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。如果这个线程异常结束，会有另一个取代它，保证顺序执行。单工作线程最大的特点是可保证顺序地执行各个任务，并且在任意给定的时间不会有多个线程是活动的。
+
+```java
+public static ExecutorService newSingleThreadExecutor() {
+    return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.MILLISECONDS,
+                                new LinkedBlockingQueue<Runnable>()));
+}
+
+public static ExecutorService newSingleThreadExecutor(ThreadFactory threadFactory) {
+    return new FinalizableDelegatedExecutorService
+        (new ThreadPoolExecutor(1, 1,
+                                0L, TimeUnit.MILLISECONDS,
+                                new LinkedBlockingQueue<Runnable>(),
+                                threadFactory));
+}
+```
+
+【示例】
+
+```java
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+
+public class SingleThreadPoolDemo {
+    public static void main (String[] args) throws Exception{
+        // 创建一个使用单个 worker 线程的 Executor，以无界队列方式来运行该线程。
+        ExecutorService pool = Executors.newSingleThreadExecutor();
+
+        Runnable task1 = new SingleTasks();
+        Runnable task2 = new SingleTasks();
+        Runnable task3 = new SingleTasks();
+
+        pool.execute(task1);
+        pool.execute(task2);
+        pool.execute(task3);
+
+        pool.shutdown();
+    }
+}
+
+class SingleTasks implements Runnable {
+    @Override
+    public void run () {
+        System.out.println(Thread.currentThread().getName() + "正在执行");
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(Thread.currentThread().getName() + "执行完毕");
+    }
+}
+
+```
+
+```
+pool-1-thread-1正在执行
+pool-1-thread-1执行完毕
+pool-1-thread-1正在执行
+pool-1-thread-1执行完毕
+pool-1-thread-1正在执行
+pool-1-thread-1执行完毕
+```
+
+## 4.3 `newCachedThreadPool`
+
+创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。
+
+```java
+public static ExecutorService newCachedThreadPool() {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue<Runnable>());
+}
+
+public static ExecutorService newCachedThreadPool(ThreadFactory threadFactory) {
+    return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                  60L, TimeUnit.SECONDS,
+                                  new SynchronousQueue<Runnable>(),
+                                  threadFactory);
+}
+```
+
+**特点**：
+
+工作线程的创建数量几乎没有限制(其实也有限制的,数目为Interger. MAX_VALUE), 这样可灵活的往线程池中添加线程。
+
+## 4.4 `newScheduleThreadPool`
+
+创建一个定长的线程池，而且支持定时的以及周期性的任务执行，支持定时及周期性任务执行。
+
+```java
+public static ScheduledExecutorService newScheduledThreadPool(int corePoolSize) {
+    return new ScheduledThreadPoolExecutor(corePoolSize);
+}
+
+public static ScheduledExecutorService newScheduledThreadPool(
+    int corePoolSize, ThreadFactory threadFactory) {
+    return new ScheduledThreadPoolExecutor(corePoolSize, threadFactory);
+}
+```
+
+## 4.5 `newSingleThreadScheduledExecutor`
+
+创建一个单线程执行程序，它可安排在给定延迟后运行命令或者定期地执行。线程池中最多执行1个线程，之后提交的线程活动将会排在队列中以此执行并且可定时或者延迟执行线程活动。
+
+```java
+public static ScheduledExecutorService newSingleThreadScheduledExecutor(ThreadFactory threadFactory) {
+    return new DelegatedScheduledExecutorService
+        (new ScheduledThreadPoolExecutor(1, threadFactory));
+}
+
+public static ScheduledExecutorService newSingleThreadScheduledExecutor() {
+    return new DelegatedScheduledExecutorService
+        (new ScheduledThreadPoolExecutor(1));
+}
+```
+
+## 4.6 使用`ThreadPoolExecutor`自定义线程池
+
+【示例】
+
+```java
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ExecutorService;
+
+public class ThreadPoolDemo {
+    public static void main(String[] args) {
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(5, 10, 200, TimeUnit.MILLISECONDS,
+                new ArrayBlockingQueue<Runnable>(5));
+
+        for (int i = 0; i < 15; i++) {
+            MyTask myTask = new MyTask(i);
+            executor.execute(myTask);
+            System.out.println("线程池中线程数目：" + executor.getPoolSize() + "，队列中等待执行的任务数目：" + executor.getQueue().size()
+                    + "，已执行完别的任务数目：" + executor.getCompletedTaskCount());
+        }
+        executor.shutdown();
+    }
+}
+
+class MyTask implements Runnable {
+    private int taskNum;
+
+    public MyTask(int num) {
+        this.taskNum = num;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("正在执行task " + taskNum);
+
+        try {
+            Thread.sleep(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("task " + taskNum + "执行完毕");
+    }
+}
+```
+
+```
+// 输出如下：
+正在执行task 0
+线程池中线程数目：1，队列中等待执行的任务数目：0，已执行完别的任务数目：0
+线程池中线程数目：2，队列中等待执行的任务数目：0，已执行完别的任务数目：0
+正在执行task 1
+正在执行task 2
+线程池中线程数目：3，队列中等待执行的任务数目：0，已执行完别的任务数目：0
+线程池中线程数目：4，队列中等待执行的任务数目：0，已执行完别的任务数目：0
+正在执行task 3
+线程池中线程数目：5，队列中等待执行的任务数目：0，已执行完别的任务数目：0
+正在执行task 4
+线程池中线程数目：5，队列中等待执行的任务数目：1，已执行完别的任务数目：0
+线程池中线程数目：5，队列中等待执行的任务数目：2，已执行完别的任务数目：0
+线程池中线程数目：5，队列中等待执行的任务数目：3，已执行完别的任务数目：0
+线程池中线程数目：5，队列中等待执行的任务数目：4，已执行完别的任务数目：0
+线程池中线程数目：5，队列中等待执行的任务数目：5，已执行完别的任务数目：0
+线程池中线程数目：6，队列中等待执行的任务数目：5，已执行完别的任务数目：0
+正在执行task 10
+线程池中线程数目：7，队列中等待执行的任务数目：5，已执行完别的任务数目：0
+正在执行task 11
+线程池中线程数目：8，队列中等待执行的任务数目：5，已执行完别的任务数目：0
+正在执行task 12
+线程池中线程数目：9，队列中等待执行的任务数目：5，已执行完别的任务数目：0
+正在执行task 13
+线程池中线程数目：10，队列中等待执行的任务数目：5，已执行完别的任务数目：0
+正在执行task 14
+task 0执行完毕
+正在执行task 5
+task 1执行完毕
+task 2执行完毕
+正在执行task 6
+正在执行task 7
+task 14执行完毕
+task 3执行完毕
+正在执行task 9
+task 10执行完毕
+task 4执行完毕
+task 11执行完毕
+task 12执行完毕
+task 13执行完毕
+正在执行task 8
+task 5执行完毕
+task 6执行完毕
+task 7执行完毕
+task 9执行完毕
+task 8执行完毕
+```
+
+从执行结果可以看出，当线程池中线程的数目大于5时，便将任务放入任务缓存队列里面，当任务缓存队列满了之后，便创建新的线程。
