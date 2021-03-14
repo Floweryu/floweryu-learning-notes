@@ -106,4 +106,5 @@ public class App {
 - `call()`方法可以抛出异常，`run()`方法不可以
 - `Callable`的任务执行后可返回值，而`Runnable`的任务是不能返回值(是`void`)
 - 运行`Callable`任务可以拿到一个`Future或FutureTask`对象，表示异步计算的结果。它提供了检查计算是否完成的方法，以等待计算的完成，并检索计算的结果。通过`Future`对象可以了解任务执行情况，可取消任务的执行，还可获取执行结果。
+- 线程池运行，`Runnable`使用`ExecutorService`的`execute`方法，`Callable`使用`submit`方法。
 
