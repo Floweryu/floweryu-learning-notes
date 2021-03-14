@@ -379,3 +379,118 @@ task 8执行完毕
 ```
 
 从执行结果可以看出，当线程池中线程的数目大于5时，便将任务放入任务缓存队列里面，当任务缓存队列满了之后，便创建新的线程。
+
+# 5. `execute`方法和`submit`方法区别
+
+- `submit`属于`ExecutorService`接口，`execute`属于`Executor`接口。`ExecutorService`继承了`Executor`。
+- `submit()`有返回值。
+- `execute()`没有返回值。
+
+## 5.1 源码
+
+下面是`execute`源码和`submit`源码：
+
+```java
+public interface Executor {
+
+	/**
+     * @param command the runnable task
+     * @throws RejectedExecutionException if this task cannot be
+     * accepted for execution
+     * @throws NullPointerException if command is null
+     */
+    void execute(Runnable command);
+}
+```
+
+```java
+<T> Future<T> submit(Callable<T> task);
+
+<T> Future<T> submit(Runnable task, T result);
+
+Future<?> submit(Runnable task);
+```
+
+## 5.2 异常捕获
+
+下面，执行一段代码：
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class SubmitExecuteDemo {
+    
+    public static void main(String[] args) throws Exception {
+        ExecutorService pool = Executors.newFixedThreadPool(1);
+
+        Runnable r = () -> System.out.println(1 / 0);
+        pool.submit(r);			// 使用submit提交
+        pool.shutdown();
+    }
+}
+```
+
+控制台输出为空，没有异常，也没有日志。
+
+接着，将`pool.submit()`替换为`pool.execute()`：
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ExecuteDemo {
+    public static void main(String[] args) throws Exception {
+        ExecutorService pool = Executors.newFixedThreadPool(1);
+
+        Runnable r = () -> System.out.println(1 / 0);
+        pool.execute(r);
+        pool.shutdown();
+    }
+}
+```
+
+可以看到输出了异常：
+
+```bash
+Exception in thread "pool-1-thread-1" java.lang.ArithmeticException: / by zero
+        at ExecuteDemo.lambda$main$0(ExecuteDemo.java:8)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+        at java.base/java.lang.Thread.run(Thread.java:834)
+```
+
+## 5.3 `submit`捕获异常
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+public class SubmitExecuteDemo {
+    
+    public static void main(String[] args) throws Exception {
+        ExecutorService pool = Executors.newFixedThreadPool(1);
+
+        Runnable r = () -> System.out.println(1 / 0);
+        Future<?> f = pool.submit(r);
+        f.get();	// 使用Future.get()捕获异常
+        pool.shutdown();
+    }
+}
+```
+
+```bash
+Exception in thread "main" java.util.concurrent.ExecutionException: java.lang.ArithmeticException: / by zero
+        at java.base/java.util.concurrent.FutureTask.report(FutureTask.java:122)
+        at java.base/java.util.concurrent.FutureTask.get(FutureTask.java:191)
+        at SubmitExecuteDemo.main(SubmitExecuteDemo.java:12)
+Caused by: java.lang.ArithmeticException: / by zero
+        at SubmitExecuteDemo.lambda$main$0(SubmitExecuteDemo.java:10)
+        at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)
+        at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+        at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+        at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+        at java.base/java.lang.Thread.run(Thread.java:834)
+```
+
