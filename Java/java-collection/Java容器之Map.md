@@ -1,5 +1,7 @@
 # Java容器之Map
 
+![](https://i.loli.net/2021/03/15/z8dSUNEqybsKInQ.png)
+
 ## 1. `Map`简介
 
 ### 1.1 Map 架构
