@@ -1,4 +1,5 @@
-﻿### 参考文章
+### 参考文章
+
 [文章转载自此处](https://mp.weixin.qq.com/s?__biz=MzI4Njg5MDA5NA==&mid=2247493999&idx=2&sn=6f894ed6c32323d1ee8acd4711404e07&chksm=ebd4a86edca3217864a490071e1fd5d06eb65bba6145e799f0159e84ba3251e0b67c6f55ef82&scene=126&sessionid=1604967503&key=dd1ecb7d7c9e7a361b81006fc6cc4df10af94c97d6e497483536f5fa9022060067854bf0b11d65f8e28ac40b9a7f94858b3297f6f42f2aa7ca1112730d0c71bde73fc901a6f2095ea3c2d075cbd0bacb674894e4751bf99ccb3988e69225617a61dc26c7c98406e9be186a989566a2303b1e75efa4f642a5999a88d0f70d03c0&ascene=1&uin=MzY5MTAwNTc0MQ==&devicetype=Windows%2010%20x64&version=6300002f&lang=zh_CN&exportkey=A2u5IpWqDRN4IPUkQwLzPIM=&pass_ticket=NoPYak801ZmgStFst4sfYdbVnfDJQvIz2uljYsEtbXtr5qu7BIztk/l3mmHB2SAu&wx_header=0) 
 ### 一、JVM内存与JMM内存模型
 #### (1) JVM内存结构
