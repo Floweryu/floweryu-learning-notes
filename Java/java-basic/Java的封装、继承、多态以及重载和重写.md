@@ -90,6 +90,40 @@ Java 中类可分为以下三种：
 
 指在**继承**情况下，子类中定义了与其父类中方法具有**相同型构**的新方法，就称为子类把父类的方法重写了。这是实现多态必须的步骤。
 
+- Java子类不能重写父类的静态方法，但是子类可以重新定义父类的静态方法，并将父类静态方法屏蔽。可以使用父类名.静态方法的方式调用：
+
+```java
+public class StaticParent {
+    public static int a = 0;
+
+    public static void printA() {
+        System.out.println("In Parent, a = " + a);
+    }
+
+}
+
+public class StaticSon extends StaticParent {
+    public static void main(String[] args) {
+
+        printA();
+    }
+
+    // @Override  错误: 不能使用 @Override 注释静态方法
+    public static void printA() {
+        System.out.println("In son a = " + a);
+        StaticParent.printA();
+    }
+    // 输出：
+    // In son a = 0
+	// In Parent, a = 0
+}
+
+```
+
+- 构造器不能被 override（重写）,但是可以 overload（重载）
+- 如果⽗类⽅法访问修饰符为 `private/final/static` 则⼦类就不能重写该⽅法，但是被 `static `修饰 的⽅法能够被再次声明。
+- 关于 重写的返回值类型：如果⽅法的返 回类型是void和基本数据类型，则返回值重写时不可修改。但是如果⽅法的返回值是引⽤类型， 重写时是可以返回该引⽤类型的⼦类的。
+
 ### 重载（overloading）
 
 指在**同一个类**中定义了一个以上具有相同名称，但是型构不同的方法。
