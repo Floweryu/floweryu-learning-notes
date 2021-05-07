@@ -1,6 +1,6 @@
-Java有三种创建线程的方式，分别为实现`Runnable`接口的`run`方法，继承`Thread`类并重写`run`方法，使用`FutureTask`方式。
+Java有四种创建线程的方式，分别为实现`Runnable`接口的`run`方法，继承`Thread`类并重写`run`方法，使用`FutureTask`方式，利用线程池`ExecutorService`、`Callable`、`future`来实现。
 
-# 1. 三种创建方式对比
+# 1. 前三种创建方式对比
 
 采用实现`Runnable`、`Callable`接口的方式创见多线程时，优势是：
 
@@ -100,7 +100,51 @@ public class App {
 }
 ```
 
-# 5. `Runnable`和`Callable`区别
+# 5. 线程池方式创建
+
+创建固定大小的线程池，提交Callable任务，利用Future获取返回的值：
+
+```java
+public class AddPool implements Callable<Integer> {
+    private int start, end;
+
+    public AddPool(int start, int end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    public Integer call() throws Exception {
+        int sum = 0;
+        System.out.println(Thread.currentThread().getName() + " 开始执行!");
+        for (int i = start; i <= end; i++) {
+            sum += i;
+        }
+        System.out.println(Thread.currentThread().getName() + " 执行完毕! sum=" + sum);
+        return sum;
+    }
+
+    public static void main(String[] arg) throws ExecutionException, InterruptedException {
+        int start=0, mid=500, end=1000;
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        Future<Integer> future1 = executorService.submit(new AddPool(start, mid));
+        Future<Integer> future2 = executorService.submit(new AddPool(mid+1, end));
+
+        int sum = future1.get() + future2.get();
+        System.out.println("sum: " + sum);
+    }
+}
+
+// pool-1-thread-1 开始执行!
+// pool-1-thread-2 开始执行!
+// pool-1-thread-1 执行完毕! sum=125250
+// pool-1-thread-2 执行完毕! sum=375250
+// sum: 500500
+```
+
+
+
+# 6. `Runnable`和`Callable`区别
 
 - `Callable`规定的方法是`call()`，`Runnable`规定的方法是`run()`
 - `call()`方法可以抛出异常，`run()`方法不可以
