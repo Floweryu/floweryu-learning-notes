@@ -18,6 +18,14 @@
 
 代码中`methodA()`方法嵌套调用了`methodB()`方法，`methodB()`的事务传播行为由`@Transaction(Propagation=XXX)`设置决定。这里需要注意的是`methodA()`并没有开启事务，某一个事务传播行为修饰的方法并不是必须要在开启事务的外围方法中调用。
 
+## @Transactional(rollbackFor = Exception.class)注解
+
+Exception分为运⾏时异常RuntimeException和⾮运⾏时异常。事务管理对于企业应 ⽤来说是⾄关重要的，即使出现异常情况，它也可以保证数据的⼀致性。
+
+当 @Transactional 注解作⽤于类上时，该类的所有 public ⽅法将都具有该类型的事务属性，同 时，我们也可以在⽅法级别使⽤该标注来覆盖类级别的定义。如果类或者⽅法加了这个注解，那 么这个类⾥⾯的⽅法抛出异常，就会回滚，数据库⾥⾯的数据也会回滚。
+
+在 @Transactional 注解中如果不配置 rollbackFor 属性,那么事物只会在遇到 RuntimeException 的 时候才会回滚,加上 rollbackFor=Exception.class ,可以让事物在遇到⾮运⾏时异常时也回滚。
+
 # 2. Spring中七种事务传播行为
 
 | 事务传播行为类型          | 说明                                                         |
