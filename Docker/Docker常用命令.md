@@ -229,3 +229,82 @@ docker stop 容器id		# 停止当前正在运行的容器
 docker kill 容器id		# 强制停止当前容器
 ```
 
+# 其他命令
+
+**后台启动容器**
+
+```shell
+# 命令：docker run -d 镜像名
+[root@iZuf616vx1rni5mn9jvi9oZ /]# docker run -d centos
+# 问题：使用docker ps，发现centos停止
+# docker使用后台运行，就必须要有一个前台进程，docker 发现没有应用，就会自动停止
+```
+
+**查看日志**
+
+```shell
+# 命令：docker logs -tf --tail number 容器
+# -tf 显示全部
+# --tail number 查看日志行数
+Options:
+      --details        Show extra details provided to logs
+  -f, --follow         Follow log output
+      --since string   Show logs since timestamp (e.g. 2013-01-02T13:23:37Z) or relative (e.g. 42m for 42 minutes)
+  -n, --tail string    Number of lines to show from the end of the logs (default "all")
+  -t, --timestamps     Show timestamps
+      --until string   Show logs before a timestamp (e.g. 2013-01-02T13:23:37Z) or relative (e.g. 42m for 42 minutes)
+```
+
+**查看容器进程信息**
+
+```shell
+# 命令：docker top 容器id
+[root@iZuf616vx1rni5mn9jvi9oZ ~]# docker top 8492e483cfbd
+UID    PID      PPID     C   STIME   TTY     TIME       CMD
+root   224214   224194   0   22:44   pts/0   00:00:00   /bin/bash
+```
+
+**查看容器内部信息**
+
+```shell
+# 命令：docker inspect 容器Id
+[root@iZuf616vx1rni5mn9jvi9oZ ~]# docker inspect 8492e483cfbd
+[
+    {
+        "Id": "8492e483cfbd5494bdce220368c643316b1f6066008dbec0da51597421f7b583",
+        "Created": "2021-07-18T14:44:38.186015752Z",
+        "Path": "/bin/bash",
+        "Args": [],
+...
+```
+
+**进入当前正在运行的容器**
+
+```shell
+# 命令：docker exec -it 容器id bashShell
+[root@iZuf616vx1rni5mn9jvi9oZ ~]# docker exec -it 8492e483cfbd /bin/bash
+[root@8492e483cfbd /]# ls
+bin  dev  etc  home  lib  lib64  lost+found  media  mnt  opt  proc  root  run  sbin  srv  sys  tmp  usr  var
+[root@8492e483cfbd /]# ps -ef
+UID          PID    PPID  C STIME TTY          TIME CMD
+root           1       0  0 14:44 pts/0    00:00:00 /bin/bash
+root          16       0  0 15:04 pts/1    00:00:00 /bin/bash
+root          31      16  0 15:04 pts/1    00:00:00 ps -ef
+[root@8492e483cfbd /]# 
+
+# 方式二：docker attach 容器id
+# 进入后正在执行
+[root@iZuf616vx1rni5mn9jvi9oZ ~]# docker attach 8492e483cfbd
+[root@8492e483cfbd /]# docker ps
+
+# docker exec 进入容器后开启一个新的终端，可以在里面操作
+# docker attach 进入容器正在执行的终端，不会启动新的进程
+```
+
+**从容器内拷贝文件到主机上**
+
+```shell
+# docker cp 容器id:容器内路径 目的主机路径
+[root@iZuf616vx1rni5mn9jvi9oZ ~]# docker cp 8492e483cfbd:/home/test.java /home
+```
+
