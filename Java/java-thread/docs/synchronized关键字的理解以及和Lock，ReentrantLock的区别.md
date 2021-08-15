@@ -9,8 +9,10 @@
 - **修饰代码块**：指定加锁对象，对给定对象加锁，进入同步代码库前要获得给定对象的锁。
 
 #### 总结：
+
 `synchronized`关键字加到`static`静态方法和`synchronized(class)`加到代码块上都是给Class类加锁。`synchronized`关键字加到实例方法上是给对象实例加上锁。尽量不要用`synchronized(String a)`，因为，在JVM，字符串常量有缓存功能。
 #### 具体使用：
+
 **双重校验锁实现对象单例**
 ```java
 public class App {
@@ -107,6 +109,7 @@ public class App {
 **可重入锁**：自己可以再次获取自己的内部锁。比如一个线程获取了某个对象的锁，此时这个对象锁还没有释放，当其再次想要获取这个对象的锁的时候还是可以获取到的。如果不可锁重入的话，就会造成死锁。同一个线程每次获取锁，锁的计数器就会加1，要等到锁的计数器下降为0的时候才能释放锁。
 
 #### 2. `synchronized`依赖于`JVM`而`ReentrantLock`依赖于`API`
+
 `synchronized 是依赖于 JVM 实现的`，并没有直接暴露给我们。
 
 `ReentrantLock` 是 JDK 层⾯实现的（也就是 API 层⾯，需要 `lock() 和 unlock()` ⽅法配合`try/finally` 语句块来完成），所以可以通过查看它的源代码，来看它是如何实现的。
