@@ -108,3 +108,4 @@ public static native void sleep(long millis) throws InterruptedException;
 - 进入`wait`状态的线程能够被`notify`和`notifyAll`线程唤醒，但是进入`sleeping`状态的线程不能被`notify`方法唤醒。
 - `wait`通常有条件地执行，线程会一直处于`wait`状态，直到某个条件变为真。但是`sleep`仅仅让你的线程进入睡眠状态。
 - wait方法在进入wait状态的时候会释放对象的锁，但是sleep方法不会。
+
