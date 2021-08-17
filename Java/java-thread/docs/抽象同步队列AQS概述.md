@@ -34,7 +34,7 @@ static final class Node {
     static final Node EXCLUSIVE = null;
 
     /** 线程等待状态，状态值有: 0、1、-1、-2、-3 */
-    volatile int waitStatus;
+    volatile int waitStatus;	// 标记的是下一个节点
     static final int CANCELLED =  1;	// 线程被取消
     static final int SIGNAL    = -1;	// 线程需要被唤醒
     static final int CONDITION = -2;	// 线程在条件队列里面等待
