@@ -115,3 +115,19 @@ mysql> SELECT a, a + 0 FROM bittest;
 1 row in set (0.00 sec)
 ```
 
+## BLOB和TEXT
+
+BLOB采用二进制方式存储，TEXT采用字符方式存储。
+
+实际上，它们分别属于不同的数据类型家族：
+
+字符类型：`TINYTEXT、SMALLTEXT、TEXT、MEDIUMTEXT、LONGTEXT`
+二进制类型：`TINYBLOB、SMALLBLOB、BLOB、MEDIUMBLOB、LONGBLOB`
+
+与其它类型不同，MySQL把每个BLOB和TEXT值当作一个独立的对象处理。当BLOB和TEXT值太大时，InnoDB会使用专门的外部存储区域来进行存储，此时每个值在行内需要1~4个字节存储一个指针，然后在外部存储区存储实际的值。
+
+BLOB和TEXT不同在于：BLOB类型存储的是二进制数据，没有排序规则或字符集；而TEXT类型有字符集和排序规则。
+
+MySQL对BLOB和TEXT进行排序与其它类型是不同的：它对每个列的最前`max_sort_length`字节而不是整个字符串做排序。如果只需要排序前面一小部分字符，则可以减少`max_sort_length`的配置，或者使用`ORDER BY SUSTRING(column, length)`
+
+MySQL不能将BLOB和TEXT列全部长度的字符串进行索引，也不能使用这些索引消除排序。
