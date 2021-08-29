@@ -39,7 +39,7 @@
 
 将`id`和`table`结合可以看出SQL的执行顺序。
 
-- `<unionM,N>`：当有 union 时，UNION RESULT 的 table 列的值为 <union1,2>，1和2表示参与 union 的 select 行id。
+- `<unionM,N>`：当有 union 时，UNION RESULT 的 table 列的值为 `<union1,2>`，1和2表示参与 union 的 select 行 id。
 
 - `<derivedN>`：id值为N的派生表的结果
 - `<subqueryN>`：id值为N的具体化子查询结果
@@ -414,7 +414,7 @@ mysql> explain select * from actor where actor_id = 1 or actor_id = 2;
 
 **`IN`和`OR`哪个效率高?**
 
-> :bulb:结论：IN比OR快，IN里面的列不要超过500个
+> :bulb:结论：IN比OR快，IN里面的列不要超过1000个
 >
 > IN在查询时会将list变为一个二叉搜索树，通过二叉搜索树进行查找，时间复杂度是O(logN)，N是检索的列数
 >
@@ -422,9 +422,70 @@ mysql> explain select * from actor where actor_id = 1 or actor_id = 2;
 
 当要检索的列为**主键索引**或**普通索引**时，IN 的执行速度和 OR 差别不大
 
-当要检索的列没有索引时，IN的执行速度要远大于 OR
+当要检索的列没有索引时，IN的执行速度要远大于 OR。建议将IN查询转化为`INNER JOIN`，这样就可以走索引。
 
 > 这篇文章有测试用例可以来验证：https://blog.csdn.net/nimeijian/article/details/50516336
+
+**用or分割开的条件，如果or前的条件中列有索引，而后面的列中没有索引，那么涉及到的索引都不会被用到，将导致全表扫描**
+
+下面查询，`countrycode`有索引，`name`没有索引，但是执行时都没有使用到索引
+
+```mysql
+mysql> explain select * from city where countrycode = 'AFG' or name = 'Kabul'\G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: city
+   partitions: NULL
+         type: ALL
+possible_keys: CountryCode
+          key: NULL
+      key_len: NULL
+          ref: NULL
+         rows: 4188
+     filtered: 10.39
+        Extra: Using where
+1 row in set, 1 warning (0.00 sec)
+```
+
+#### 索引和锁
+
+下面sql基于表`actor`，其中`last_name`上有索引，`actor_id`是主键索引
+
+```mysql
+# 事务1
+mysql> set autocommit=0;
+mysql> begin;
+mysql> update actor set first_name = 'zhang' where last_name = 'GUINESS';
+Query OK, 3 rows affected (0.00 sec)
+Rows matched: 3  Changed: 3  Warnings: 0
+
+# 事务2
+mysql> begin;
+mysql> update actor set last_name = 'junfeng' where actor_id = 1;
+ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
+```
+
+使用`show engine innodb status\G;`查看日志可以得到
+
+![image-20210829174705587](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210829174955.png)
+
+事务1的`update`语句正常执行如下：
+
+1. 由于使用到了非聚簇索引，首先获取`last_name`上的行级锁。
+2. 然后根据主键`actor_id`进行更新，所以要获取`primary`上的行级锁
+3. 更新完毕，提交
+
+事务2的`update`执行如下：
+
+1. 先锁住聚簇索引`actor_id`
+2. 然后再更新字段`last_name`
+
+假设事务2在事务1的第一步和第二步之间执行，则事务2先获锁住聚簇索引，然后去请求`last_name`索引上的锁；而事务1获取了`last_name`上的锁，正在等待`primary`上的锁。这样就出现了死锁。
+
+**解决方法**
+
+可以根据`last_name`先获取到要更新记录的主键，然后再逐条更新。
 
 ## 扩展：`show profile`
 
@@ -479,7 +540,6 @@ mysql> show variables like '%profil%';
 ```mysql
 # 开启session级别的profiling
 mysql> set profiling=1;
-Query OK, 0 rows affected, 1 warning (0.00 sec)
 
 # 验证修改后的结果
 mysql> show variables like '%profil%';
@@ -574,4 +634,11 @@ mysql> show profile;
 +--------------------------------+----------+
 17 rows in set, 1 warning (0.00 sec)
 ```
+
+## 参考文献：
+
+- [为什么数据库字段要使用NOT NULL](https://www.cnblogs.com/ilovejaney/p/14619604.html)
+- [索引优化导致死锁案例解析](https://www.cnblogs.com/vivotech/p/14313671.html)
+
+- [官方文档](https://dev.mysql.com/doc/refman/8.0/en/explain-output.html)
 
