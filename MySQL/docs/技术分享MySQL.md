@@ -50,38 +50,298 @@
 
 #### `type`：查询使用的类型
 
-- system：当表仅有一行记录时(系统表)，数据量很少，往往不需要进行磁盘IO，速度非常快。
-- const：表示查询时命中 `primary key` 主键或者 `unique` 唯一索引，或者被连接的部分是一个常量(`const`)值。这类扫描效率极高，返回数据量少，速度非常快，因为只读一次。
-- eq_ref：表连接查询，主键索引或者唯一索引全部被命中，是除system和const之外，最好的连接类型，和索引列比较只能使用=号。
-- ref：使用最左前缀匹配索引（索引不是主键，也不是唯一索引），和索引列比较可以使用 = 或 <=> 。
-- fulltext：使用全文索引的时候才会出现。
-- ref_or_null：这个查询类型和ref很像，但是 MySQL 会做一个额外的查询，来看哪些行包含了NULL。
-- index_merge：在一个查询里面很有多索引用被用到，可能会触发index_merge的优化机制。
-- unique_subquery：unique_subquery和eq_ref不一样的地方是使用了in的子查询：
+查询效率由高到低：
 
-```mysql
-value IN (SELECT primary_key FROM single_table WHERE some_expr)
-```
+**`system > const > eq_ref > ref > fulltext > ref_or_null > index_merge > unique_subquery > index_subquery > range > index > all`**
 
-> unique_subquery是一个索引查找函数，代替子查询提高效率。
+- **system**：当表仅有一行记录时(系统表)，数据量很少，往往不需要进行磁盘IO，速度非常快。
 
-- index_subquery：index_subquery和unique_subquery很像，区别是它在子查询里使用的是非唯一索引。
+- **const**：表示查询时命中 `primary key` 主键或者 `unique` 唯一索引，或者被连接的部分是一个常量(`const`)值。这类扫描效率极高，返回数据量少，速度非常快，因为只读一次。
 
-```mysql
-value IN (SELECT key_column FROM single_table WHERE some_expr)
-```
+  下面例子就使用了主键索引查询，所以`type`就是`const`：
 
-- range：通过索引范围查找多行数据，可以使用=, <>, >, >=, <, <=, IS NULL, <=>, BETWEEN, LIKE, 或 IN() 操作符。
-- index：index类型和ALL类型一样，区别就是index类型是扫描的索引树。以下两种情况会触发：
+  ```mysql
+  mysql> explain select * from city where id = 5\G;
+  *************************** 1. row ***************************
+             id: 1
+    select_type: SIMPLE
+          table: city
+     partitions: NULL
+           type: const
+  possible_keys: PRIMARY
+            key: PRIMARY
+        key_len: 4
+            ref: const
+           rows: 1
+       filtered: 100.00
+          Extra: NULL
+  1 row in set, 1 warning (0.00 sec)
+  ```
+
+- **eq_ref**：表连接查询，主键索引或者唯一索引全部被命中，是除system和const之外，最好的连接类型，和索引列比较只能使用=号。表示对于前表的每一个结果, 都只能匹配到后表的一行结果
+
+  下面示例中，`country_id`是country的主键`id`。根据`country`表的每一个结果，都只能匹配到`city`表的一行结果，所以`type`是`eq_ref`。
+
+  ```mysql
+  mysql> explain select * from city, country where country.country_id  = city.city_id\G;
+  *************************** 1. row ***************************
+             id: 1
+    select_type: SIMPLE
+          table: country
+     partitions: NULL
+           type: ALL
+  possible_keys: PRIMARY
+            key: NULL
+        key_len: NULL
+            ref: NULL
+           rows: 109
+       filtered: 100.00
+          Extra: NULL
+  *************************** 2. row ***************************
+             id: 1
+    select_type: SIMPLE
+          table: city
+     partitions: NULL
+           type: eq_ref
+  possible_keys: PRIMARY
+            key: PRIMARY
+        key_len: 2
+            ref: sakila.country.country_id
+           rows: 1
+       filtered: 100.00
+          Extra: NULL
+  2 rows in set, 1 warning (0.00 sec)
+  ```
+
+- **ref**：使用最左前缀匹配索引（索引不是主键，也不是唯一索引），和索引列比较可以使用 = 或 <=> 。
+
+  下面示例中，`actor_id`是`actor`表的主键索引，但对应到`film_actor`表中有多个结果，所以查询类型不是`eq_ref`，而是`ref`。
+
+  ```mysql
+  mysql> explain select * from actor, film_actor where actor.actor_id = film_actor.actor_id\G;
+  *************************** 1. row ***************************
+             id: 1
+    select_type: SIMPLE
+          table: actor
+     partitions: NULL
+           type: ALL
+  possible_keys: PRIMARY
+            key: NULL
+        key_len: NULL
+            ref: NULL
+           rows: 200
+       filtered: 100.00
+          Extra: NULL
+  *************************** 2. row ***************************
+             id: 1
+    select_type: SIMPLE
+          table: film_actor
+     partitions: NULL
+           type: ref
+  possible_keys: PRIMARY
+            key: PRIMARY
+        key_len: 2
+            ref: sakila.actor.actor_id
+           rows: 27
+       filtered: 100.00
+          Extra: NULL
+  2 rows in set, 1 warning (0.00 sec)
+  ```
+
+- **fulltext**：使用全文索引的时候才会出现。
+
+- **ref_or_null**：这个查询类型和ref很像，但是 MySQL 会做一个额外的查询，来看哪些行包含了NULL。
+
+- **index_merge**：在一个查询里面很有多索引用被用到，可能会触发index_merge的优化机制。
+
+- **unique_subquery**：unique_subquery和eq_ref不一样的地方是使用了in的子查询：
+
+- **index_subquery**：index_subquery和unique_subquery很像，区别是它在子查询里使用的是非唯一索引。
+
+- **range**：通过索引范围查找多行数据，可以使用`=, <>, >, >=, <, <=, IS NULL, <=>, BETWEEN, LIKE, 或 IN() `操作符。
+
+  ```mysql
+  mysql> explain select * from country where country_id > 5\G;
+  *************************** 1. row ***************************
+             id: 1
+    select_type: SIMPLE
+          table: country
+     partitions: NULL
+           type: range
+  possible_keys: PRIMARY
+            key: PRIMARY
+        key_len: 2
+            ref: NULL
+           rows: 104
+       filtered: 100.00
+          Extra: Using where
+  1 row in set, 1 warning (0.00 sec)
+  ```
+
+- **index**：index类型和ALL类型一样，区别就是index类型是扫描的索引树。以下两种情况会触发：
+
   -  如果索引是查询的覆盖索引，就是说查询的数据在索引中都能找到，只需扫描索引树，不需要回表查询。 在这种情况下，explain 的 Extra 列的结果是 Using index。仅索引扫描通常比ALL快，因为索引的大小通常小于表数据。
+
   - 全表扫描会按索引的顺序来查找数据行。使用索引不会出现在Extra列中。
-- all：全表扫描，效率最低的查询，一般可以通过添加索引避免。
+
+  下面查询的`last_name`是索引列，使用到了覆盖索引，不需要回表查询。`type`是`index`，并且`extra`是`using index`。
+
+  ```mysql
+  mysql> explain select last_name from actor\G;
+  *************************** 1. row ***************************
+             id: 1
+    select_type: SIMPLE
+          table: actor
+     partitions: NULL
+           type: index
+  possible_keys: NULL
+            key: idx_actor_last_name
+        key_len: 137
+            ref: NULL
+           rows: 200
+       filtered: 100.00
+          Extra: Using index
+  1 row in set, 1 warning (0.00 sec)
+  ```
+
+- **all**：全表扫描，效率最低的查询，一般可以通过添加索引避免。
+
+  ```mysql
+  mysql> explain select first_name from actor\G;
+  *************************** 1. row ***************************
+             id: 1
+    select_type: SIMPLE
+          table: actor
+     partitions: NULL
+           type: ALL
+  possible_keys: NULL
+            key: NULL
+        key_len: NULL
+            ref: NULL
+           rows: 200
+       filtered: 100.00
+          Extra: NULL
+  1 row in set, 1 warning (0.00 sec)
+  ```
 
 #### `possible_keys`：显示查询可以使用哪些索引，不一定是最终使用的索引
 
 #### `key`：实际使用的索引
 
-#### `key_len`：在索引里使用的字节数
+#### `key_len`：在索引里使用的字节数，也可以查看联合索引实际使用了哪些索引
+
+计算规则如下：
+
+**字符串**：
+
+- `char(n)`：如果n字节长度（utf8字符集占用3个字节）
+
+- `varchar(n)`：如果是`uft8`编码，则是`3n + 2`个字节；如果是`utf8mb4`，则是`4n + 2`字节；
+
+**数值类型**：
+
+- `tinyint`：1字节
+- `smallint`：2字节
+- `mediumint`：3字节
+- `int`：4字节
+- `bigint`：8字节
+
+**时间属性**：
+
+- `date`：3字节
+- `timestamp`：4字节
+- `datetime`：8字节
+
+**字段属性**：NULL 属性，占用一个字节. 如果一个字段是 NOT NULL 的, 则没有此属性
+
+创建下面示例表：
+
+```mysql
+CREATE TABLE `test_key_len` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT,
+  `name` char(20) NOT NULL DEFAULT '',
+  `name1` char(20) DEFAULT NULL,
+  `name2` varchar(20) NOT NULL DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+mysql> select * from test_key_len;
++----+---------+---------+---------+
+| id | name    | name1   | name2   |
++----+---------+---------+---------+
+|  1 | xiaogou | xiaomao | xiaoniu |
+|  2 | a       | b       | c       |
+|  3 | xiaomi  | ali     | baidu   |
++----+---------+---------+---------+
+3 rows in set (0.00 sec)
+```
+
+1. 执行下面语句：
+
+```mysql
+mysql> explain select * from test_key_len where name = 'a'\G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_key_len
+   partitions: NULL
+         type: ref
+possible_keys: name
+          key: name
+      key_len: 60
+          ref: const
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+```
+
+这里只使用了`name`索引，`name`是`char(20)`且非空，又因为使用的是`utf8`字符集，所以`key_len = 20 * 3 = 60`
+
+2. 下面添加`idx_name_name1(name,name1) `索引，执行下面SQL：
+
+```mysql
+mysql> explain select * from test_key_len where name = 'a' and name1 = 'b'\G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_key_len
+   partitions: NULL
+         type: ref
+possible_keys: idx_name_name1
+          key: idx_name_name1
+      key_len: 121
+          ref: const,const
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+```
+
+由于`name1`是`NULL`，所以要多加1字节，`key_len = 20 * 3 + (20 * 3 + 1) = 121`
+
+3. 添加`idx_name1_name2 (name1, name2)`索引
+
+```mysql
+mysql> explain select * from test_key_len where name1 = 'b' and name2 = 'c'\G;
+*************************** 1. row ***************************
+           id: 1
+  select_type: SIMPLE
+        table: test_key_len
+   partitions: NULL
+         type: ref
+possible_keys: idx_name1_name2
+          key: idx_name1_name2
+      key_len: 123
+          ref: const,const
+         rows: 1
+     filtered: 100.00
+        Extra: NULL
+1 row in set, 1 warning (0.00 sec)
+```
+
+由于`name1`是`NULL`并且为`char`，`name2`是`NOT NULL`并且为`varchar`，所以`key_len = (20 * 3 + 1) + (20 * 3 + 2) = 123 `
 
 #### `ref`：在key索引中查找值所用的列或常量
 
@@ -105,6 +365,66 @@ value IN (SELECT key_column FROM single_table WHERE some_expr)
 - `No tables used`：查询语句中没有`FROM`子句，或者有 `FROM DUAL`子句。
 
 > 还有其它字段：[官方文档](https://dev.mysql.com/doc/refman/8.0/en/explain-output.html#explain_ref)
+
+## 索引优化
+
+#### `ORDER BY`优化
+
+> select (几乎全部字段) from puri_video where user_id = ? order by id desc 后缀的order by id  想变更为 order by create_time
+>
+> sql 是 where user_id = ? order by  create_time,  那索引  (user_id,create_time)是最优的
+
+![image-20210826204557101](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826204603.png)
+
+在`rental_duration和length`不是组合索引的情况下，执行下面SQL：
+
+```mysql
+explain select * from film where rental_duration = 6 order by length;
+```
+
+![image-20210826204835573](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826204837.png)
+
+Extra中出现`Using filesort`，说明需要进行优化。
+
+添加组合索引：`(rental_duration,length)`
+
+![image-20210826205252992](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826205254.png)
+
+再执行上述SQL：
+
+![image-20210826205425066](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826205426.png)
+
+#### `UNION/UNION ALL/IN/OR`
+
+**UNION和UNION ALL效率？**
+
+除非需要消除重复的行使用`UNION`，否则推荐使用`UNION ALL`。因为如果没有`ALL`关键字，MySQL会给临时表加上`DISTINCT`选项，这会导致对整个临时表的数据进行唯一性检查。
+
+> 从下面查询可以看出，`UNION ALL`比`IN/OR`多执行一步。但是IN和OR开不出来，数据量太小。
+
+```mysql
+mysql> explain select * from actor where actor_id = 1 union all select * from actor where actor_id = 2;
+
+mysql> explain select * from actor where actor_id in (1, 2);
+
+mysql> explain select * from actor where actor_id = 1 or actor_id = 2;
+```
+
+![image-20210826173129651](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826190326.png)
+
+**`IN`和`OR`哪个效率高?**
+
+> :bulb:结论：IN比OR快，IN里面的列不要超过500个
+>
+> IN在查询时会将list变为一个二叉搜索树，通过二叉搜索树进行查找，时间复杂度是O(logN)，N是检索的列数
+>
+> OR会一个个的匹配，所以时间复杂度是O(N)，N是检索的列数
+
+当要检索的列为**主键索引**或**普通索引**时，IN 的执行速度和 OR 差别不大
+
+当要检索的列没有索引时，IN的执行速度要远大于 OR
+
+> 这篇文章有测试用例可以来验证：https://blog.csdn.net/nimeijian/article/details/50516336
 
 ## 扩展：`show profile`
 
