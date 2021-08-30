@@ -633,6 +633,31 @@ mysql> show profile;
 | cleaning up                    | 0.000023 |	// 释放内存和重置某些状态变量
 +--------------------------------+----------+
 17 rows in set, 1 warning (0.00 sec)
+
+# 查询某一条记录的执行信息
+mysql> show profile for query 2; 
++--------------------------------+----------+ 
+| Status                         | Duration | 
++--------------------------------+----------+ 
+| starting                       | 0.000076 | 
+| Executing hook on transaction  | 0.000004 | 
+| starting                       | 0.000009 | 
+| checking permissions           | 0.000007 | 
+| Opening tables                 | 0.000057 | 
+| init                           | 0.000006 | 
+| System lock                    | 0.000010 | 
+| optimizing                     | 0.000004 | 
+| statistics                     | 0.000024 | 
+| preparing                      | 0.000020 | 
+| executing                      | 0.003638 | 
+| end                            | 0.000014 | 
+| query end                      | 0.000003 | 
+| waiting for handler commit     | 0.000008 | 
+| closing tables                 | 0.000009 | 
+| freeing items                  | 0.000063 | 
+| cleaning up                    | 0.000018 | 
++--------------------------------+----------+ 
+17 rows in set, 1 warning (0.00 sec)
 ```
 
 ## 参考文献：
