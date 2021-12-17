@@ -92,3 +92,10 @@ docker-compose up -d
 }
 ```
 
+## 6. 安装Kibana
+
+```bash
+# http://106.15.42.148:9200/ 为es的IP地址
+docker run --name kibana -e ELASTICSEARCH_HOSTS=http://106.15.42.148:9200/ -p 5601:5601 -d kibana:7.12.0
+```
+
