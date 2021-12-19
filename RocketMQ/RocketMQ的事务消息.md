@@ -238,3 +238,9 @@ protected void onWaitEnd() {
 
 - 事务消息的Group ID不能与其他类型消息的Group ID共用。与其他类型的消息不同，事务消息有回查机制，回查时消息队列RocketMQ版服务端会根据Group ID去查询生产者客户端。
 
+## 参考文章
+
+- [RocketMQ是如何实现事务消息的](https://github.com/Cicizz/binary/blob/master/RocketMQ/RocketMQ%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF/RocketMQ%E6%98%AF%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E4%BA%8B%E5%8A%A1%E6%B6%88%E6%81%AF%E7%9A%84.md)
+- https://help.aliyun.com/document_detail/43348.html
+
+- https://github.com/apache/rocketmq/blob/master/docs/cn/RocketMQ_Example.md
