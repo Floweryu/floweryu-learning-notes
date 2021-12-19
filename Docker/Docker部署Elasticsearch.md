@@ -34,14 +34,14 @@ echo "http.host: 0.0.0.0">>/elasticsearch/config/elasticsearch.yml
 #7.后台启动
 docker run --name elasticsearch -p 9200:9200 -p 9300:9300 \
 -e "discovery.type=single-node" \
--e ES_JAVA_OPTS="-Xms64m -Xmx1024m" \
+-e ES_JAVA_OPTS="-Xms64m -Xmx512m" \
 -v /elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \
 -v /elasticsearch/data:/usr/share/elasticsearch/data \
 -v /elasticsearch/plugins:/usr/share/elasticsearch/plugins \
 -d elasticsearch:7.16.1
 ```
 
-# 4. 也可以使用docker-compose启动容器
+### 4. 也可以使用docker-compose启动容器
 
 创建docker-compose.yml文件:
 
@@ -90,5 +90,18 @@ docker-compose up -d
   },
   "tagline" : "You Know, for Search"
 }
+```
+
+## 6. 拉去kibina镜像并运行
+
+具体配置参考：https://www.elastic.co/guide/cn/kibana/current/docker.html
+
+```bash
+docker search kibana
+
+拉取镜像
+docker pull kibana:7.16.1
+
+docker run --name kibana -e ELASTICSEARCH_URL=http://106.15.42.148:9200/ -p 5601:5601 -d kibana:7.16.1
 ```
 
