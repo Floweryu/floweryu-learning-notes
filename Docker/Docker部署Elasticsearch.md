@@ -102,5 +102,30 @@ docker search kibana
 拉取镜像
 docker pull kibana:7.16.1
 
+
+
+# 运行启动kibana
 docker run --name kibana -e ELASTICSEARCH_URL=http://106.15.42.148:9200/ -p 5601:5601 -d kibana:7.16.1
 ```
+如果没有启动成功，则进入容器内部，修改`kibana.yml`文件
+
+```bash
+# 进入kibina容器
+docker exec -it 894934073dda /bin/bash
+
+cd config/
+vim kibana.yml
+```
+
+```yaml
+
+# 修改kibana.yml里面的 elasticsearch.hosts 为自己服务部署的ES地址
+# ** THIS IS AN AUTO-GENERATED FILE **
+#
+# Default Kibana configuration for docker target
+server.host: "0.0.0.0"
+server.shutdownTimeout: "5s"
+elasticsearch.hosts: [ "http://106.15.42.148:9200" ]  # 修改为自己ES服务的地址
+monitoring.ui.container.elasticsearch.enabled: true
+```
+
