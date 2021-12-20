@@ -7,9 +7,9 @@ docker pull elasticsearch:7.16.1
 ## 2. 创建容器挂载目录并授权，持久化容器数据和配置
 
 ```bash
-mkdir -p /elasticsearch/data 
-mkdir -p /elasticsearch/config 
-mkdir -p /elasticsearch/plugins 
+mkdir -p /elasticsearch/data
+mkdir -p /elasticsearch/config
+mkdir -p /elasticsearch/plugins
 ```
 
 授予读写权限
@@ -34,16 +34,16 @@ echo "http.host: 0.0.0.0">>/elasticsearch/config/elasticsearch.yml
 #7.后台启动
 docker run --name elasticsearch -p 9200:9200 -p 9300:9300 \
 -e "discovery.type=single-node" \
--e ES_JAVA_OPTS="-Xms64m -Xmx1024m" \
+-e ES_JAVA_OPTS="-Xms64m -Xmx512m" \
 -v /elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml \
 -v /elasticsearch/data:/usr/share/elasticsearch/data \
 -v /elasticsearch/plugins:/usr/share/elasticsearch/plugins \
 -d elasticsearch:7.16.1
 ```
 
-# 4. 也可以使用docker-compose启动容器
+### 4. 也可以使用 docker-compose 启动容器
 
-创建docker-compose.yml文件:
+创建 docker-compose.yml 文件:
 
 ```bash
 version: '2'
@@ -64,13 +64,13 @@ services:
     restart: always
 ```
 
-##### 使用docker-compose在docker-compose.yml所在目录启动容器
+##### 使用 docker-compose 在 docker-compose.yml 所在目录启动容器
 
 ```bash
 docker-compose up -d
 ```
 
-## 5. 访问http://loaclhost:9200/
+## 5. 访问 http://loaclhost:9200/
 
 ```bash
 {
@@ -92,10 +92,15 @@ docker-compose up -d
 }
 ```
 
-## 6. 安装Kibana
+## 6. 拉去 kibina 镜像并运行
+
+具体配置参考：https://www.elastic.co/guide/cn/kibana/current/docker.html
 
 ```bash
-# http://106.15.42.148:9200/ 为es的IP地址
-docker run --name kibana -e ELASTICSEARCH_HOSTS=http://106.15.42.148:9200/ -p 5601:5601 -d kibana:7.12.0
-```
+docker search kibana
 
+拉取镜像
+docker pull kibana:7.16.1
+
+docker run --name kibana -e ELASTICSEARCH_URL=http://106.15.42.148:9200/ -p 5601:5601 -d kibana:7.16.1
+```
