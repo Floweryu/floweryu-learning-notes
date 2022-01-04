@@ -53,3 +53,33 @@ public class Car {
 }
 ```
 
+## 读取配置时添加校验
+
+```java
+@ConfigurationProperties(prefix = "car")
+@Validated
+public class Car {
+    @NotNull
+    private String name;
+    
+    @NotEmpty
+    private Integer price;
+
+    private Pet pet;
+
+	// standard getters and setters
+}
+```
+
+这时，如果配置文件写成下面这样，会抛出异常。
+
+```xml
+car:
+#  name: timi
+  price: 
+  pet: 
+    name: pig
+```
+
+
+
