@@ -79,7 +79,7 @@ public @interface ComponentScan {
 
 ![image-20220220195322567](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202202201953137.png)
 
-#### 4.2 排除bean
+#### 4.2 过滤规则
 
 FilterType的类型：
 
@@ -87,8 +87,56 @@ FilterType的类型：
 - `FilterType.ASSIGNABLE_TYPE`：指定类
 - `FilterType.ASPECTJ`：指定切入点类型
 - `FilterType.REGEX`：指定正则表达式
-- `FilterType.CUSTOM`：自定义类型
+- `FilterType.CUSTOM`：自定义过滤规则
 
 下面按照注解排除了Service和Controller
 
 ![image-20220220210435192](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202202202104277.png)
+
+##### 自定义规则
+
+实现`TypeFilter`接口，定义一个过滤器
+
+```java
+public class MyTypeFilter implements TypeFilter {
+    /**
+     * 
+     * @param metadataReader 读取到的当前正在扫描的类信息
+     * @param metadataReaderFactory 获取其他任何类的信息
+     * @return
+     * @throws IOException
+     */
+    @Override
+    public boolean match(MetadataReader metadataReader, MetadataReaderFactory metadataReaderFactory) throws IOException {
+        // 获取当前类的注解信息
+        AnnotatedTypeMetadata annotatedTypeMetadata = metadataReader.getAnnotationMetadata();
+        // 获取当前类的类信息
+        ClassMetadata classMetadata = metadataReader.getClassMetadata();
+        // 获取当前类的资源信息
+        Resource resource = metadataReader.getResource();
+        String className = classMetadata.getClassName();
+        System.out.println("----class name----: " + className);
+        if (className.contains("Service")) {
+            return true;
+        }
+        return false;
+    }
+}
+```
+
+然后在注解中使用该过滤器，使用`FilterType.CUSTOM`
+
+```java
+@Configuration
+@ComponentScan(value = "com.floweryu.example", includeFilters = {
+        @ComponentScan.Filter(type = FilterType.CUSTOM, classes = MyTypeFilter.class)
+}, useDefaultFilters = false)
+public class MainConfig {
+    
+}
+```
+
+输出如下：可以看到ConfigService没有加注解，但是也被扫描出来了
+
+![image-20220220223901791](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202202202239126.png)
+
