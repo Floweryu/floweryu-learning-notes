@@ -5,6 +5,8 @@
 > b. @Bean[导入第三方组件]
 >
 > c. @Import[快速给容器导入组件]
+>
+> d. 使用Spring提供的工厂FactoryBean——默认获取的是工厂Bean调用getObject()创建的对象，在bean的名字前加上&可以获取到工厂Bean本身
 
 ## @Import注解作用
 
@@ -101,3 +103,68 @@ public class MainConfig2 {
 ```
 
 这样如果容器中存在符合条件的bean，就会注入自定义的bean.
+
+## FactoryBean
+
+实现`FactoryBean`接口，创建工厂bean
+
+```java
+public class ColorFactoryBean implements FactoryBean{
+    /**
+     * 返回一个color对象，添加到容器中
+     */
+    @Override
+    public Object getObject() throws Exception {
+        System.out.println("getObject ...");
+        return new Color();
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return Color.class;
+    }
+}
+```
+
+然后注入这个工厂bean
+
+```java
+@Configuration
+public class MainConfig2 {
+    @Bean
+    public ColorFactoryBean colorFactoryBean() {
+        return new ColorFactoryBean();
+    }
+}
+```
+
+最后测试获取bean
+
+```java
+@Test
+public void importTest() {
+    Object colorFactortyBean = context.getBean("colorFactoryBean");
+    System.out.println("colorFactoryBean...  " + colorFactortyBean.getClass());
+}
+// 输出如下
+getObject ...
+colorFactoryBean...  class com.floweryu.example.bean.Color
+```
+
+发现最终获取的Bean是Color
+
+**如果想获取这个工厂bean怎么办？**
+
+在前面添加**&**符号，这个在`BeanFactory`接口中可以查到
+
+```java
+@Test
+public void importTest() {
+    printNames();
+    Object colorFactortyBean = context.getBean("&colorFactoryBean");
+    System.out.println("colorFactoryBean...  " + colorFactortyBean.getClass());
+}
+```
+
+
+
