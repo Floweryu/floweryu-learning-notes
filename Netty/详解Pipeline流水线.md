@@ -123,8 +123,24 @@ public class OutPipeline {
 
 ![image-20220427204228917](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202204272042063.png)
 
-## 3. ChannelHandlerContext上下文
+## 3. ChannelHandlerContext上下文 ??
 
 在Handler业务处理器被添加到流水线中时，会创建一个通道处理器上下文ChannelHandlerContext，它代表了ChannelHander通道处理器和ChannelPipeline通道流水线之间的关联。
 
-在Channel，ChannelPipeline，ChannelHandlerContext三个类中，会有同样的出站和入站处理方法
+> 在Channel，ChannelPipeline，ChannelHandlerContext三个类中，会有同样的出站和入站处理方法，同一个操作出现在不同的类中，功能有什么不同呢？
+>
+> 如果通过Channel或ChannelPipeline的实例来调用这些方法，他们就会在整个流水线中传播。通过ChannelHandlerContext通道处理器会进行上下文调用，就只会从当前节点开始执行Handler业务处理器，并传播到同类型处理器的下一个节点。
+
+Channel，ChannelPipeline和ChannelHandlerContext三者关系：
+
+Channel通道拥有一条ChannelPipeline通道流水线，每一个流水线节点为一个ChannelHandlerContext通道处理上线文对象，每一个上下文中包裹了一个ChannelHandler处理器。在ChannelHandler通道处理器的入站/出站方法中，Netty都会传递一个Context上下文实例作为实际参数。
+
+## 4. 截断流水线处理
+
+入站处理器的截断：
+
+- 不调用`super.channelXXX(ctx, msg);`
+- 不调用`ctx.fireChannelXXX(msg);`
+
+出站处理器只要开始执行，就不能被截断。
+
