@@ -144,3 +144,60 @@ Channel通道拥有一条ChannelPipeline通道流水线，每一个流水线节�
 
 出站处理器只要开始执行，就不能被截断。
 
+## 5. Handler业务处理器的热拔插
+
+Netty处理器流水线是一个双向链表，可以动态的进行业务处理的热拔插：动态地增加、删除流水线上的业务处理器Handler。
+
+主要的方法声明在ChannelPipeline接口中，下面是使用示例：
+
+```java
+public class InPipeline {
+    public static class SimpleInHandlerA extends ChannelInboundHandlerAdapter {
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            System.out.println("入站处理器 A: 被回调 ");
+            super.channelRead(ctx, msg);
+            // 移除该处理器
+            ctx.pipeline().remove(this);
+        }
+    }
+    public static class SimpleInHandlerB extends ChannelInboundHandlerAdapter {
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            System.out.println("入站处理器 B: 被回调 ");
+            super.channelRead(ctx, msg);
+        }
+    }
+    public static class SimpleInHandlerC extends ChannelInboundHandlerAdapter {
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            System.out.println("入站处理器 C: 被回调 ");
+            super.channelRead(ctx, msg);
+        }
+    }
+    
+}
+```
+
+Netty的通道初始化处理器——ChannelInitializer，在注册回调channelRegistered方法中，就将自己从流水线中删除。因为一条通道只需要做一次初始化的工作。
+
+```java
+    private boolean initChannel(ChannelHandlerContext ctx) throws Exception {
+        if (initMap.add(ctx)) { // Guard against re-entrance.
+            try {
+                initChannel((C) ctx.channel());
+            } catch (Throwable cause) {
+                // Explicitly call exceptionCaught(...) as we removed the handler before calling initChannel(...).
+                // We do so to prevent multiple calls to initChannel(...).
+                exceptionCaught(ctx, cause);
+            } finally {
+                if (!ctx.isRemoved()) {
+                    ctx.pipeline().remove(this);
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+```
+
