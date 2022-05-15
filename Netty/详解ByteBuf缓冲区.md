@@ -288,3 +288,58 @@ Netty的Reactor反应器会在底层的Java NIO通道读取数据，即`Abstract
 
 #### 10.2 入站处理时，ByteBuf如何释放
 
+##### 1. TailHandler自动释放
+
+Netty会默认在ChannelPipeline通道流水线的最后添加一个TailHandler末尾处理器，实现了默认的处理方法，在这些方法中会帮助完成ByteBuf内存释放工作。
+
+在默认情况下，如果每个InboundHandler入站处理器，把最初的ByteBuf数据包一路向下传，则TailHandler末尾处理器会自动释放掉入站的ByteBuf实例。
+
+如何让ByteBuf数据包通过流水线一路向后传递呢？
+
+如果自定义的InboundHandler入站处理器继承自ChannelInboundHandlerAdapter处理器，则可以在InboundHandler的处理方法中调用基类的入站处理方法。有下面两种方法：
+
+- 手动释放ByteBuf，调用`byteBuf.release()`
+- 调用父类的入站方法将msg向后传递，依赖后面的处理器释放ByteBuf。具体的方式为调用基类的入站处理方法`super.channelRead(ctx, msg)`
+
+##### 2. SimpleChannelInboundHandler自动释放
+
+如果Handler业务处理器需要截断流水线的处理流程，不将ByteBuf数据包送入后边的InboundHandler入站处理器，这时，流水线末端的TailHandler末尾处理器自动释放缓冲区的工作自然就失效了。
+
+这种场景下，有两种方法：
+
+- 手动释放ByteBuf实例
+- 继承SimpleChannelInboundHandler，利用它的自动释放功能
+
+第二种是如何释放ByteBuf的？
+
+Handler业务处理器必须继承自SimpleChannelInboundHandler基类，并且，业务处理器的代码必须移动到重写的`channelRead0(ctx, msg)`中。这些方法会在调用完实际的channelRead方法后，帮忙释放ByteBuf实例。
+
+```java
+@Override
+public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    boolean release = true;
+    try {
+        if (acceptInboundMessage(msg)) {
+            @SuppressWarnings("unchecked")
+            I imsg = (I) msg;
+            // 需要实现这个方法
+            channelRead0(ctx, imsg);
+        } else {
+            release = false;
+            ctx.fireChannelRead(msg);
+        }
+    } finally {
+        if (autoRelease && release) {
+            // 最终在这里释放ByteBuf
+            ReferenceCountUtil.release(msg);
+        }
+    }
+}
+```
+
+#### 10.3 出站处理，如何释放ByteBuf
+
+HeadHandler自动释放。在出站处理流程中，申请分配到的ByteBuf主要是通过HeadHandler完成自动释放的。
+
+出站处理用到的ByteBuf缓冲区，一般是要发送的消息，通常由Handler业务处理器申请分配的。每一个出站的Handler业务处理器中处理完成后，最后数据包会来到出站的最后一棒HeadHandler，在数据输出完成后，ByteBuf会被释放一次，如果计数器为零，将被彻底释放掉。
+
