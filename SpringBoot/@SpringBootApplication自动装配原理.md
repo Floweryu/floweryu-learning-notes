@@ -95,7 +95,7 @@ static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImp
 
 利用debug可以查看一下信息：
 
-![image-20220108231528364](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201082315497.png)
+![image-20220108231528364](https://s2.loli.net/2022/07/31/C45pMbozcs3Ojwi.png)
 
 注解的`metadata`就是启动的应用程序（MainApplication），通过该元信息，可以获取到主类所在的包名。因为该注解标注在主类上。 然后将包下面所有组件都导入容器。
 
@@ -194,3 +194,4 @@ private static Map<String, List<String>> loadSpringFactories(ClassLoader classLo
 
 总体流程：`xxxAutoConfiguration`---> 组件 ---> `xxxProperties`拿值 ---> `application.properties`
 
+ 
