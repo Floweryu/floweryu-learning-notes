@@ -1,8 +1,4 @@
-```java
-java -jar --add-exports=java.base/sun.net.util=ALL-UNNAMED sentinel-dashboard-1.8.4.jar
-```
-
-https://www.cnblogs.com/wuzhenzhao/p/11453649.html
+从`SphU.entry()`方法向下执行，会进入到下面这个方法中
 
 ```java
 private Entry entryWithPriority(ResourceWrapper resourceWrapper, int count, boolean prioritized, Object... args)
@@ -140,7 +136,7 @@ public class DefaultSlotChainBuilder implements SlotChainBuilder {
 
 下面借用官网的图片：官方链接如下：https://sentinelguard.io/zh-cn/docs/basic-implementation.html
 
-![image-20220705222328137](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202207052223584.png)
+![image-20220801191458948](https://s2.loli.net/2022/08/01/9ae41dBnACkl8tm.png)
 
 整个调用链中最核心的就是 **`StatisticSlot`(**用于记录、统计不同纬度的 runtime 指标监控信息) 以及**`FlowSlot`(**根据预设的限流规则以及前面 slot 统计的状态，来进行流量控制）
 
@@ -173,7 +169,7 @@ public class DefaultProcessorSlotChain extends ProcessorSlotChain {
 
 可以看出**ProcessorSlotChain**是一个链表，里面有两个**AbstractLinkedProcessorSlot**类型的链表：first和end，即链表的头结点和尾结点。
 
-![image-20220705224855785](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202207052249479.png)
+![image-20220801191557361](https://s2.loli.net/2022/08/01/VistdyuBMJv8DEb.png)
 
 然后添加通过`addLast`方法添加节点
 
@@ -190,13 +186,91 @@ public void setNext(AbstractLinkedProcessorSlot<?> next) {
 }
 ```
 
-![image-20220705224831952](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202207052248830.png)
-
-
+![image-20220801191607238](https://s2.loli.net/2022/08/01/tyoI2krTDFqZcSu.png)
 
 然后依次类推，可以得到下面的链路SlotChain：
 
-![image-20220706224218577](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202207062242264.png)
+![image-20220801191620840](https://s2.loli.net/2022/08/01/krMqmgzZ6YTNOHS.png)
 
 ### SlotChain的链路执行
+
+#### StatisticSlot中的entry逻辑
+
+```java
+public void entry(Context context, ResourceWrapper resourceWrapper, DefaultNode node, int count, boolean prioritized, Object... args) throws Throwable {
+        Iterator var8;
+        ProcessorSlotEntryCallback handler;
+        try {
+            // 做一些检查 传递到下一个entry，会触发后续的slot的entry方法，如果规则不通过，就会抛出BlockException异常，则会在下一步的node中统计被block的数量。反之，会在node中统计通过的请求数和线程数等信息。
+            this.fireEntry(context, resourceWrapper, node, count, prioritized, args);
+            // 执行到这里表示通过了检查，没有被限流
+            node.increaseThreadNum();
+            node.addPassRequest(count);
+            if (context.getCurEntry().getOriginNode() != null) {
+                context.getCurEntry().getOriginNode().increaseThreadNum();
+                context.getCurEntry().getOriginNode().addPassRequest(count);
+            }
+
+            if (resourceWrapper.getEntryType() == EntryType.IN) {
+                Constants.ENTRY_NODE.increaseThreadNum();
+                Constants.ENTRY_NODE.addPassRequest(count);
+            }
+
+            Iterator var13 = StatisticSlotCallbackRegistry.getEntryCallbacks().iterator();
+
+            while(var13.hasNext()) {
+                ProcessorSlotEntryCallback<DefaultNode> handler = (ProcessorSlotEntryCallback)var13.next();
+                handler.onPass(context, resourceWrapper, node, count, args);
+            }
+        } catch (PriorityWaitException var10) {
+            node.increaseThreadNum();
+            if (context.getCurEntry().getOriginNode() != null) {
+                context.getCurEntry().getOriginNode().increaseThreadNum();
+            }
+
+            if (resourceWrapper.getEntryType() == EntryType.IN) {
+                Constants.ENTRY_NODE.increaseThreadNum();
+            }
+
+            var8 = StatisticSlotCallbackRegistry.getEntryCallbacks().iterator();
+
+            while(var8.hasNext()) {
+                handler = (ProcessorSlotEntryCallback)var8.next();
+                handler.onPass(context, resourceWrapper, node, count, args);
+            }
+        } catch (BlockException var11) {
+            BlockException e = var11;
+            context.getCurEntry().setBlockError(var11);
+            node.increaseBlockQps(count);
+            if (context.getCurEntry().getOriginNode() != null) {
+                context.getCurEntry().getOriginNode().increaseBlockQps(count);
+            }
+
+            if (resourceWrapper.getEntryType() == EntryType.IN) {
+                Constants.ENTRY_NODE.increaseBlockQps(count);
+            }
+
+            var8 = StatisticSlotCallbackRegistry.getEntryCallbacks().iterator();
+
+            while(var8.hasNext()) {
+                handler = (ProcessorSlotEntryCallback)var8.next();
+                handler.onBlocked(e, context, resourceWrapper, node, count, args);
+            }
+
+            throw e;
+        } catch (Throwable var12) {
+            context.getCurEntry().setError(var12);
+            throw var12;
+        }
+
+    }
+```
+`node.addPassRequest`方法是在`fireEntry`执行后才执行的，也就是说，当前请求通过了sentinel的流控规则，此时需要将当次请求记录下来
+
+```java
+public void addPassRequest(int count) {
+    super.addPassRequest(count);
+    this.clusterNode.addPassRequest(count);
+}
+```
 
