@@ -532,4 +532,3 @@ public void checkFlow(Function<String, Collection<FlowRule>> ruleProvider, Resou
 
 ### 参考文章
 
-- https://chrome.google.com/webstore/category/extensions?hl=zh

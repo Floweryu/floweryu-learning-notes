@@ -127,8 +127,6 @@ private PutMessageStatus checkMessage(MessageExtBrokerInner msg) {
 
 **org.apache.rocketmq.store.DefaultMessageStore#checkLmqMessage**方法：
 
-
-
 ```java
 private PutMessageStatus checkLmqMessage(MessageExtBrokerInner msg) {
     if (msg.getProperties() != null
@@ -148,5 +146,45 @@ private boolean isLmqConsumeQueueNumExceeded() {
 }
 ```
 
+#### 4. 开始存储消息到commitLog
 
+**org.apache.rocketmq.store.CommitLog#asyncPutMessage**方法：
+
+**1. 设置消息存储时间和CRC(速度快)**
+
+```java
+msg.setStoreTimestamp(System.currentTimeMillis());
+// Set the message body BODY CRC (consider the most appropriate setting
+// on the client)
+msg.setBodyCRC(UtilAll.crc32(msg.getBody()));
+```
+
+**2. 如果消息有延迟级别并且不是事务消息**
+
+```java
+final int tranType = MessageSysFlag.getTransactionValue(msg.getSysFlag());
+if (tranType == MessageSysFlag.TRANSACTION_NOT_TYPE
+    || tranType == MessageSysFlag.TRANSACTION_COMMIT_TYPE) {
+    // Delay Delivery
+    if (msg.getDelayTimeLevel() > 0) {
+        // 提供以下延迟级别： 1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h 不得大于最大值
+        if (msg.getDelayTimeLevel() > this.defaultMessageStore.getScheduleMessageService().getMaxDelayLevel()) {
+            msg.setDelayTimeLevel(this.defaultMessageStore.getScheduleMessageService().getMaxDelayLevel());
+        }
+
+        // 将topic换成RMQ_SYS_SCHEDULE_TOPIC延迟消息
+        topic = TopicValidator.RMQ_SYS_SCHEDULE_TOPIC;
+        // 消息队列id换成延迟消息队列id
+        int queueId = ScheduleMessageService.delayLevel2QueueId(msg.getDelayTimeLevel());
+
+        // Backup real topic, queueId
+        MessageAccessor.putProperty(msg, MessageConst.PROPERTY_REAL_TOPIC, msg.getTopic());
+        MessageAccessor.putProperty(msg, MessageConst.PROPERTY_REAL_QUEUE_ID, String.valueOf(msg.getQueueId()));
+        msg.setPropertiesString(MessageDecoder.messageProperties2String(msg.getProperties()));
+
+        msg.setTopic(topic);
+        msg.setQueueId(queueId);
+    }
+}
+```
 
