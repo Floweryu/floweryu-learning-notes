@@ -2,7 +2,7 @@
 
 ### 1.1 概念
 
-![image-20221130195504431](./Spring的动态AOP原理.assets/image-20221130195504431.png)
+![image-20221130195504431](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262224611.png)
 
 ### 1.2 注解方式使用AOP
 
@@ -101,13 +101,11 @@ public class MathCalculator {
 
 #### a. Advice的执行顺序？
 
-![image-20221130214127496](./Spring的动态AOP原理.assets/image-20221130214127496.png)
+![image-20221130214127496](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262225516.png)
 
 <center>xml执行后输出</center>
 
-
-
-![image-20221130214215063](./Spring的动态AOP原理.assets/image-20221130214215063.png)
+![image-20221130214215063](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262225082.png)
 
 <center>注解方式执行后输出</center>
 
@@ -163,7 +161,7 @@ public static BeanDefinition registerAspectJAnnotationAutoProxyCreatorIfNecessar
 
 看一下核心类：**AnnotationAwareAspectJAutoProxyCreator**做了哪些事情？
 
-![image-20221122210650156](./Spring的动态AOP原理.assets/image-20221122210650156.png)
+![image-20221122210650156](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262225819.png)
 
 `AnnotationAwareAspectJAutoProxyCreator`实现了`BeanFactoryAware`接口，这样当Spring加载到这个Bean时会调用其`postProcessAfterInitialization`方法：
 
@@ -213,7 +211,7 @@ protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) 
         return bean;
     }
 
-    // 图(1) && 核心代码(1)		获取当前bean的Advices和Advisors, Interceptors
+    // 图(1) && 核心代码		获取当前bean的Advices和Advisors, Interceptors
     Object[] specificInterceptors = getAdvicesAndAdvisorsForBean(bean.getClass(), beanName, null);
     if (specificInterceptors != DO_NOT_PROXY) {
         // 对当前bean的代理状态进行缓存
@@ -231,11 +229,11 @@ protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) 
 }
 ```
 
-![image-20221127222022040](./Spring的动态AOP原理.assets/image-20221127222022040.png)
+![image-20221127222022040](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262225561.png)
 
 <center>图(1)</center>
 
-> 核心代码(1)：AbstractAdvisorAutoProxyCreator#**getAdvicesAndAdvisorsForBean**
+> 核心代码：AbstractAdvisorAutoProxyCreator#**getAdvicesAndAdvisorsForBean**
 
 先总结一下该方法做了哪些事情：
 
@@ -246,7 +244,7 @@ protected Object wrapIfNecessary(Object bean, String beanName, Object cacheKey) 
 ```java
 protected Object[] getAdvicesAndAdvisorsForBean(
     Class<?> beanClass, String beanName, @Nullable TargetSource targetSource) {
-	// 核心方法(1): 找到合适的增强对象
+	// 核心方法: 找到合适的增强对象
     List<Advisor> advisors = findEligibleAdvisors(beanClass, beanName);
     if (advisors.isEmpty()) {
         return DO_NOT_PROXY;
@@ -254,7 +252,7 @@ protected Object[] getAdvicesAndAdvisorsForBean(
     return advisors.toArray();
 }	
 
-//核心方法(1)
+//核心方法
 protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName) {
     // 图(1). 对所有的切面逻辑进行封装, 从而得到目标Advisor.  	
     List<Advisor> candidateAdvisors = findCandidateAdvisors();
@@ -266,30 +264,30 @@ protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName
         // 对需要代理的Advisor按照一定规则进行排序. 
         // 在有多个切面的情况下, 多个切点使用了同一个连接点, 这样就需要有一定的顺序, 可以配置@Order来决定顺序
 		// 里面大概是一个拓扑排序，所以会xml方式和注解方式的执行顺序会有一些不同(在使用@Around、@Before、@After情况下)
-        // 核心代码(2)
+        // 核心代码
         eligibleAdvisors = sortAdvisors(eligibleAdvisors);
     }
     return eligibleAdvisors;
 }
 ```
 
-![image-20221127134219062](./Spring的动态AOP原理.assets/image-20221127134219062.png)
+![image-20221127134219062](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262225225.png)
 
 <center>图(1)</center>
 
-![image-20221127212733993](./Spring的动态AOP原理.assets/image-20221127212733993.png)
+![image-20221127212733993](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262225257.png)
 
 <center>图(2)</center>
 
-![image-20221127212918752](./Spring的动态AOP原理.assets/image-20221127212918752.png)
+![image-20221127212918752](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262225202.png)
 
 <center>图(3)</center>
 
-> 核心代码(2): AbstractAdvisorAutoProxyCreator#**sortAdvisors**
+> 核心代码: AbstractAdvisorAutoProxyCreator#**sortAdvisors**
 >
 > **拓扑排序**：在有向无环图下，每次排序选取无前驱的节点
 >
-> ![image-20221130222304262](./Spring的动态AOP原理.assets/image-20221130222304262.png)
+> ![image-20221130222304262](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262225090.png)
 >
 > **增强器执行顺序**：
 >
@@ -297,8 +295,6 @@ protected List<Advisor> findEligibleAdvisors(Class<?> beanClass, String beanName
 >
 > - 在同一个Aspect 切面中，针对同一个 pointCut，定义了两个相同的 Advice（比如：定义了两个 @Before)，那么这两个 advice 的执行顺序是无法确定的，哪怕你给这两个 advice 添加了 @Order 这个注解，也不行。
 > - 针对不同的Aspect切面中，需要实现**org.springframework.core.Ordered**接口，实现它的**getOrder()**方法，值越小的 aspect 越先执行。否则执行顺序不固定
-
-
 
 
 
@@ -367,7 +363,7 @@ private Object buildProxy(Class<?> beanClass, @Nullable String beanName,
 }
 ```
 
-![image-20221130225226529](./Spring的动态AOP原理.assets/image-20221130225226529.png)
+![image-20221130225226529](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262225666.png)
 
 <center>图(1)-代理后的对象详情</center>
 
@@ -376,32 +372,32 @@ private Object buildProxy(Class<?> beanClass, @Nullable String beanName,
 > 核心代码：org.springframework.aop.framework.DefaultAopProxyFactory#createAopProxy，由proxyFactory.getProxy进入
 
 ```java
-	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
-		// 判断选择哪种创建代理对象的方式
-		// config.isOptimize(): 是否对代理类的生成使用策略优化, 作用和isProxyTargetClass(使用aop时可配置)是一样的, 默认为false
-		// config.isProxyTargetClass(): 是否使用CGLIB的方式创建代理对象, 默认为false
-		// hasNoUserSuppliedProxyInterfaces: 目标类是否有接口存在 并且 只有一个接口时接口类型是否为SpringProxy类型
-		if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
-			// 上面三个方法有一个为true就进入这里
-			// 从AdvisordSupport中获取目标类, 对象
-			Class<?> targetClass = config.getTargetClass();
-			if (targetClass == null) {
-				throw new AopConfigException("TargetSource cannot determine target class: " +
-						"Either an interface or a target is required for proxy creation.");
-			}
-			
-			// 如果目标类是接口 Proxy类型 lambad表达式(新增), 则还是使用JDK方式生成代理
-			if (targetClass.isInterface() || Proxy.isProxyClass(targetClass) || ClassUtils.isLambdaClass(targetClass)) {
-				return new JdkDynamicAopProxy(config);
-			}
-			// 目标类没有接口配置了使用CGLIB进行动态代理, 使用CGLIB创建代理对象
-			return new ObjenesisCglibAopProxy(config);
-		}
-		else {
-			// 使用JDK方式创建代理对象
-			return new JdkDynamicAopProxy(config);
-		}
-	}
+public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+    // 判断选择哪种创建代理对象的方式
+    // config.isOptimize(): 是否对代理类的生成使用策略优化, 作用和isProxyTargetClass(使用aop时可配置)是一样的, 默认为false
+    // config.isProxyTargetClass(): 是否使用CGLIB的方式创建代理对象, 默认为false
+    // hasNoUserSuppliedProxyInterfaces: 目标类是否有接口存在 并且 只有一个接口时接口类型是否为SpringProxy类型
+    if (config.isOptimize() || config.isProxyTargetClass() || hasNoUserSuppliedProxyInterfaces(config)) {
+        // 上面三个方法有一个为true就进入这里
+        // 从AdvisordSupport中获取目标类, 对象
+        Class<?> targetClass = config.getTargetClass();
+        if (targetClass == null) {
+            throw new AopConfigException("TargetSource cannot determine target class: " +
+                                         "Either an interface or a target is required for proxy creation.");
+        }
+
+        // 如果目标类是接口 Proxy类型 lambad表达式(新增), 则还是使用JDK方式生成代理
+        if (targetClass.isInterface() || Proxy.isProxyClass(targetClass) || ClassUtils.isLambdaClass(targetClass)) {
+            return new JdkDynamicAopProxy(config);
+        }
+        // 目标类没有接口配置了使用CGLIB进行动态代理, 使用CGLIB创建代理对象
+        return new ObjenesisCglibAopProxy(config);
+    }
+    else {
+        // 使用JDK方式创建代理对象
+        return new JdkDynamicAopProxy(config);
+    }
+}
 ```
 
 ****
@@ -428,13 +424,13 @@ private Object buildProxy(Class<?> beanClass, @Nullable String beanName,
 
 AOP代理对象生成后，接着关注代理对象的目标方法执行时，增强方法是怎么被执行的。
 
-![image-20221130225619829](./Spring的动态AOP原理.assets/image-20221130225619829.png)
+![image-20221130225619829](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226122.png)
 
 在目标方法执行这里打上断点，开始debug。
 
-![image-20221130225831730](./Spring的动态AOP原理.assets/image-20221130225831730.png)
+![image-20221130225831730](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226881.png)
 
-可以看到获取到的bean就是前面CGLIB代理后的Bean（MathCalculator$$SpringCGLIB）。
+可以看到获取到的bean就是前面CGLIB代理后的Bean（**MathCalculator$$SpringCGLIB**）。
 
 Step Into进入内部，程序跳转到下面方法中，说明目标对象的目标方法被拦截了，主要逻辑如下：
 
@@ -624,13 +620,13 @@ public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdvice
 
 其中，**this.adapters**里面成员如下：
 
-![image-20221130231741899](./Spring的动态AOP原理.assets/image-20221130231741899.png)
+![image-20221130231741899](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226715.png)
 
 > 为什么这三个增强器是通过适配器转换？
 >
 > 这里整理一下所有增强器实现的接口：
 >
-> <img src="./Spring的动态AOP原理.assets/image-20221130232128534.png" alt="image-20221130232128534" style="zoom:80%;" />
+> <img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226938.png" alt="image-20221130232128534" style="zoom:80%;" />
 >
 > 原本所有的advice都可以实现MethodInterceptor接口，但是这样的话再组装MethodInterceptor的时候，就需要添加额外的逻辑才能添加两次MethodInterceptor。
 >
@@ -640,7 +636,7 @@ public MethodInterceptor[] getInterceptors(Advisor advisor) throws UnknownAdvice
 
 > 在获取到拦截器链后，会调用核心方法：retVal = new CglibMethodInvocation(proxy, target, method, args, targetClass, chain, methodProxy).proceed();
 
-![image-20221130233319324](./Spring的动态AOP原理.assets/image-20221130233319324.png)
+![image-20221130233319324](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226218.png)
 
 
 
@@ -674,6 +670,10 @@ public Object proceed() throws Throwable {
 ```
 
 ### 5.1 拦截器调用具体过程
+
+#### 调用链路图
+
+![image-20221201181120228](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226947.png)
 
 > 核心方法：ReflectiveMethodInvocation#proceed
 
@@ -712,19 +712,19 @@ public Object proceed() throws Throwable {
 }
 ```
 
-**第一次调用：**
+#### 第一次调用
 
 程序第一次进该方法时**currentInterceptorIndex值为0**，**this.interceptorsAndDynamicMethodMatchers.get(++this.currentInterceptorIndex)**取出拦截器链第一个拦截器**ExposeInvocationInterceptor**，方法最后调用该拦截器的invoke方法，Step Into进入该方法：
 
-<img src="./Spring的动态AOP原理.assets/image-20221130234031353.png" alt="image-20221130234031353" style="zoom:80%;" />
+<img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226516.png" alt="image-20221130234031353" style="zoom:80%;" />
 
 **mi**就是我们传入的**ReflectiveMethodInvocation**对象，程序执行到**mi.proceed**方法时，Step Into进入该方法：
 
-**第二次调用**：
+#### 第二次调用
 
 可以看到，此时程序第二次执行**ReflectiveMethodInvocation**的**poceed**方法，**currentInterceptorIndex值为1**，取出拦截器链第二个拦截器**AspectJAroundAdvice**，方法最后调用该拦截器的invoke方法，Step Into进入该方法：
 
-<img src="./Spring的动态AOP原理.assets/image-20221130234606525.png" alt="image-20221130234606525" style="zoom:80%;" />
+<img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226203.png" alt="image-20221130234606525" style="zoom:80%;" />
 
 > AspectJAroundAdvice#invoke
 
@@ -772,17 +772,17 @@ protected Object invokeAdviceMethodWithGivenArgs(Object[] args) throws Throwable
 
 跳转到**logAround**方法执行：
 
-![image-20221130235312203](./Spring的动态AOP原理.assets/image-20221130235312203.png)
+![image-20221130235312203](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226716.png)
 
-可以看到，代码会跳转到**logAround**方法中，在输出方法执行前逻辑后，会继续实行**proceed**方法回到拦截器链中。此时控制台打印：
+可以看到，代码会跳转到**logAround**方法中，在输出方法执行前逻辑后，会继续执行**proceed**方法回到拦截器链中。此时控制台打印：
 
-![image-20221201000037954](./Spring的动态AOP原理.assets/image-20221201000037954.png)
+![image-20221201000037954](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226469.png)
 
-**第三次调用**
+#### 第三次调用
 
 程序并没有完全执行**logAround**，而是回到拦截器链中进行第三次调用，此时程序第三次执行**ReflectiveMethodInvocation**的**poceed**方法，**currentInterceptorIndex值为2**，取出拦截器链第三个拦截器**MethodBeforeAdviceInterceptor**，Step Into进入invoke方法。
 
-![image-20221130235613060](./Spring的动态AOP原理.assets/image-20221130235613060.png)
+![image-20221130235613060](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226416.png)
 
 > Before拦截器：MethodBeforeAdviceInterceptor#invoke
 
@@ -797,15 +797,15 @@ public Object invoke(MethodInvocation mi) throws Throwable {
 
 执行完**before**方法后，控制台输出如下：
 
-![image-20221201000214146](./Spring的动态AOP原理.assets/image-20221201000214146.png)
+![image-20221201000214146](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226931.png)
 
 执行**mi.proceed()**，进入第四次调用
 
-**第四次调用**
+#### 第四次调用
 
 此时程序第四次执行**ReflectiveMethodInvocation**的**poceed**方法，**currentInterceptorIndex值为3**，取出拦截器链第四个拦截器**AspectJAfterAdvice**，Step Into进入invoke方法。
 
-![image-20221201000512886](./Spring的动态AOP原理.assets/image-20221201000512886.png)
+![image-20221201000512886](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226220.png)
 
 > After拦截器：AspectJAfterAdvice#invoke
 
@@ -823,11 +823,11 @@ public Object invoke(MethodInvocation mi) throws Throwable {
 
 这里很特殊，看到After拦截器先继续调用拦截器链，然后再finally中执行具体的增强器逻辑。
 
-**第五次调用**
+#### 第五次调用
 
 此时程序第五次执行**ReflectiveMethodInvocation**的**poceed**方法，**currentInterceptorIndex值为4**，取出拦截器链第五个拦截器**AfterReturningAdviceInterceptor**，Step Into进入invoke方法。
 
-![image-20221201000857402](./Spring的动态AOP原理.assets/image-20221201000857402.png)
+![image-20221201000857402](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226612.png)
 
 > 返回拦截器：AfterReturningAdviceInterceptor#invoke
 
@@ -843,11 +843,11 @@ public Object invoke(MethodInvocation mi) throws Throwable {
 
 这里也是先执行下一个拦截器
 
-**第六次调用**
+#### 第六次调用
 
 此时程序第六次执行**ReflectiveMethodInvocation**的**poceed**方法，**currentInterceptorIndex值为5**，取出拦截器链第六个拦截器**AspectJAfterThrowingAdvice**，Step Into进入invoke方法。
 
-![image-20221201001116931](./Spring的动态AOP原理.assets/image-20221201001116931.png)
+![image-20221201001116931](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226653.png)
 
 > 抛出异常拦截器：AspectJAfterThrowingAdvice#invoke
 
@@ -870,7 +870,7 @@ public Object invoke(MethodInvocation mi) throws Throwable {
 
 这里也是先执行下一个拦截器
 
-**第七次调用**
+#### 第七次调用
 
 此时程序第七次执行**ReflectiveMethodInvocation**的**poceed**方法，**currentInterceptorIndex值为5**，开始调用目标函数。
 
@@ -879,11 +879,13 @@ public Object invoke(MethodInvocation mi) throws Throwable {
 > 因为上面是++currentInterceptorIndex，currentInterceptorIndex会先加一，再获取拦截器，所以第7次调用的时候，还没有走到这里来，currentInterceptorIndex还是上次调用的5.
 > ```
 
-![image-20221201001403211](./Spring的动态AOP原理.assets/image-20221201001403211.png)
+![image-20221201001403211](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226820.png)
 
 此时，控制台输出如下：
 
-![image-20221201001841006](./Spring的动态AOP原理.assets/image-20221201001841006.png)
+![image-20221201001841006](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262226172.png)
+
+#### 退栈调用
 
 随着**invokeJoinpoint**目标方法执行的成功，程序会返回到**AspectJAfterThrowingAdvice**的**invoke**方法：
 
@@ -906,44 +908,45 @@ public Object invoke(MethodInvocation mi) throws Throwable {
 
 就这个例子来说，**div**方法没有抛出异常，所以**AspectJAfterThrowingAdvice**的**invoke**方法执行结束后出栈，程序回到**AfterReturningAdviceInteceptor**的**invoke**方法：
 
-![image-20221201002457913](./Spring的动态AOP原理.assets/image-20221201002457913.png)
+![image-20221201002457913](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227085.png)
 
 **this.advice.afterReturning**执行**afterReturning**增强方法，控制台打印如下：
 
-![image-20221201002616357](./Spring的动态AOP原理.assets/image-20221201002616357.png)
+![image-20221201002616357](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227748.png)
 
 **AfterReturningAdviceInteceptor**的**invoke**方法执行结束出栈，程序回到**AspectJAfterAdvice**的**invoke**方法：
 
-![image-20221201002733843](./Spring的动态AOP原理.assets/image-20221201002733843.png)
+![image-20221201002733843](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227326.png)
 
 **AspectJAfterAdvice**的**invoke**方法最终执行**finally 的 after 逻辑**，控制台打印内容如下：
 
-![image-20221201002817304](./Spring的动态AOP原理.assets/image-20221201002817304.png)
+![image-20221201002817304](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227869.png)
 
 **AspectJAfterAdvice**的**invoke**方法执行结束出栈，程序回到**MethodBeforeAdviceInterceptor**的**invoke**方法：
 
-![image-20221201002914734](./Spring的动态AOP原理.assets/image-20221201002914734.png)
+![image-20221201002914734](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227446.png)
 
 **MethodBeforeAdviceInterceptor**的**invoke**方法正常执行结束，程序回到**MethodInvocationProceedingJoinPoint**的**process**，**MethodInvocationProceedingJoinPoint**类实现了**ProceedingJoinPoint**接口，所以这里就开始执行**@Around**增强方法里面的目标方法了。
 
-![image-20221201003005266](./Spring的动态AOP原理.assets/image-20221201003005266.png)
+![image-20221201003005266](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227868.png)
 
-开始执行目标方法：
+开始执行**logAround**里面的方法，此时可以看到是从**joinPoint.proceed()**方法处返回的：
 
-![image-20221201003140578](./Spring的动态AOP原理.assets/image-20221201003140578.png)
+![image-20221201003140578](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227660.png)
 
 控制台打印：
 
-![image-20221201003212782](./Spring的动态AOP原理.assets/image-20221201003212782.png)
+![image-20221201003212782](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227405.png)
 
 **@Around**增强方法执行完成后，会退出堆栈，程序回到**ExposeInvocationInterceptor**的**invoke**方法：
 
-![image-20221201003350133](./Spring的动态AOP原理.assets/image-20221201003350133.png)
+![image-20221201003350133](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227998.png)
 
 **ExposeInvocationInterceptor**的**invoke**方法执行结束出栈，程序回到**CglibAopProxy**的**intercept**方法：
 
-![image-20221201003516164](./Spring的动态AOP原理.assets/image-20221201003516164.png)
+![image-20221201003516164](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227564.png)
 
 **CglibAopProxy**的**intercept**方法执行结束出栈后，整个AOP的拦截器链调用也随之结束了：
 
-![image-20221201003552035](./Spring的动态AOP原理.assets/image-20221201003552035.png)
+![image-20221201003552035](https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202212262227508.png)
+
