@@ -1,4 +1,4 @@
-## 双向链表+哈希表
+## 双向链表+哈希表（非线程安全）
 
 https://leetcode.cn/problems/lru-cache/solutions/259678/lruhuan-cun-ji-zhi-by-leetcode-solution/
 
@@ -140,9 +140,9 @@ public class LRUCache {
 
 ```
 
+## 线程安全版本
 
-
-## 2.1 实现方法
+### 实现方法
 
 `ConcurrentHashMap` + `ConcurrentLinkedQueue` +`ReadWriteLock`
 
@@ -188,7 +188,7 @@ public interface ReadWriteLock {
 
 **`ScheduledThreadPoolExecutor`** **使用的任务队列** **`DelayQueue`** **封装了一个** **`PriorityQueue`，`PriorityQueue`** **会对队列中的任务进行排序，执行所需时间短的放在前面先被执行，如果执行所需时间相同则先提交的任务将被先执行。**
 
-## 2.2 原理
+### 原理
 
 LRU缓存指的是当缓存大小已达到最大分配容量的时候，如果再要去缓存新的对象数据的话，就需要将缓存中最近访问最少的对象删除掉以便给新来的数据腾出空间。
 
@@ -196,7 +196,7 @@ LRU缓存指的是当缓存大小已达到最大分配容量的时候，如果�
 
 另外，我们用到了`ReadWriteLock`(读写锁)来保证线程安全。
 
-## 2.3 代码实现
+### 代码实现
 
 ```java
 /**
@@ -343,7 +343,7 @@ long duration = endTime - startTime;
 System.out.println(String.format("Time cost：%dms", duration));//Time cost：511ms
 ```
 
-# 3. **实现一个线程安全并且带有过期时间的 LRU 缓存**
+## 线程安全并且带有过期时间
 
 实际上就是在我们上面时间的LRU缓存的基础上加上一个定时任务去删除缓存，单纯利用 JDK 提供的类，我们实现定时任务的方式有很多种：
 
@@ -369,7 +369,7 @@ private void removeAfterExpireTime(K key, long expireTime) {
 
 我们put元素的时候，如果通过这个方法就能直接设置过期时间。
 
-**完整源码如下：**
+### 完整源码
 
 ```java
 /**
@@ -511,6 +511,6 @@ Thread.sleep(2;
 System.out.println(myLruCache.size());//2
 ```
 
-# 资料来自
+## 资料来自
 
 - https://zhuanlan.zhihu.com/p/135936339
