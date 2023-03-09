@@ -1,5 +1,7 @@
-## 数组中重复的数字
+## 剑指 Offer 03. 数组中重复的数字
 
+> https://leetcode.cn/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/?favorite=xb9nqhhg
+>
 > 找出数组中重复的数字。
 >
 > 在一个长度为 n 的数组 nums 里的所有数字都在 0～n-1 的范围内。数组中某些数字是重复的，但不知道有几个数字重复了，也不知道每个数字重复了几次。请找出数组中任意一个重复的数字。
@@ -63,17 +65,19 @@ public int findRepeatNumber(int[] nums) {
 }
 ```
 
-## 二维数组中的查找
+## 剑指 Offer 04. 二维数组中的查找
 
+> https://leetcode.cn/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/?favorite=xb9nqhhg
+>
 > 在一个 n * m 的二维数组中，每一行都按照从左到右 **非递减** 的顺序排序，每一列都按照从上到下 **非递减** 的顺序排序。请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
 >
 > ```
 > [
->   [1,   4,  7, 11, 15],
->   [2,   5,  8, 12, 19],
->   [3,   6,  9, 16, 22],
->   [10, 13, 14, 17, 24],
->   [18, 21, 23, 26, 30]
+> [1,   4,  7, 11, 15],
+> [2,   5,  8, 12, 19],
+> [3,   6,  9, 16, 22],
+> [10, 13, 14, 17, 24],
+> [18, 21, 23, 26, 30]
 > ]
 > ```
 >
@@ -117,7 +121,7 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
 因此，以左下角元素或者右上角元素为基础`flag`，则有：
 
 - 若`target < flag`：则`target`一定在`flag`所在行的上面，这样`flag`所在**行**就可以消除。
-- 若`target > flag`：则`target`一定在`flag`所在行的下面，这样`flag`所在**列**就可以消除。
+- 若`target > flag`：则`target`一定在`flag`所在列的右方，这样`flag`所在**列**就可以消除。
 
 复杂度分析：
 
@@ -132,10 +136,10 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
         if (matrix[i][j] == target) {
             return true;
         } else if (matrix[i][j] > target) {
-            // 消除行
+            // target一定在matrix[i][j]上方，消除行
             i--;
         } else if (matrix[i][j] < target) {
-            // 消除列
+            // target一定在matrix[i][j]右方，消除列
             j++;
         }
     }
@@ -143,3 +147,43 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
 }
 ```
 
+## 剑指 Offer 05. 替换空格
+
+> 链接：https://leetcode.cn/problems/ti-huan-kong-ge-lcof/?favorite=xb9nqhhg
+>
+> 请实现一个函数，把字符串 `s` 中的每个空格替换成"%20"。
+>
+> 【示例】：
+>
+> ```
+> 输入：s = "We are happy."
+> 输出："We%20are%20happy."
+> ```
+
+### 方法一：直接调用replace方法
+
+```java
+public String replaceSpace(String s) {
+    return s.replace(" ", "%20");
+}
+```
+
+### 方法二：遍历替换
+
+```java
+public String replaceSpace(String s) {
+    StringBuilder sb = new StringBuilder();
+    for (char ch : s.toCharArray()) {
+        if (ch == ' ') {
+            sb.append("%20");
+        } else {
+            sb.append(ch);
+        }
+    }
+    return sb.toString();
+}
+```
+
+
+
+## 剑指 Offer 06. 从尾到头打印链表
