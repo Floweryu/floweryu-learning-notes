@@ -21,3 +21,5 @@ User          root
 IdentityFile  C:/Users/name/.ssh/Aliyun.pem # 连接服务器的密钥,这里我是使用密钥登录服务器
 ```
 
+
+
