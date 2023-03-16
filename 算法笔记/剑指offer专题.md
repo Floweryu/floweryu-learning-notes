@@ -116,7 +116,7 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
 
 如下图所示：将矩阵逆时针旋转，可以发现其类似于**二叉搜索树**。即每个元素，左分支元素更小，右分支元素更大。
 
-<img src="https://floweryu-image.oss-cn-shanghai.aliyuncs.com/image202303062026709.png" alt="image-20230306202617089" style="zoom:50%;" />
+<img src="./assets/image-20230316132855942.png" alt="image-20230316132855942" style="zoom:50%;" />
 
 因此，以左下角元素或者右上角元素为基础`flag`，则有：
 
