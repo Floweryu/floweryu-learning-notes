@@ -6,19 +6,19 @@
 
 看下面这个例子：
 
-<img src="https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210727204047.png" alt="image-20210727203630216" style="zoom: 50%;" />
+<img src="./assets/20210727204047.png" alt="image-20210727203630216" style="zoom: 50%;" />
 
 表中包含一下数据：
 
-<img src="https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210727204045.png" alt="image-20210727203733500" style="zoom:50%;" />
+<img src="./assets/20210727204045.png" alt="image-20210727203733500" style="zoom:50%;" />
 
 假设索引使用哈希函数`f()`，它返回下面的值：
 
-<img src="https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210727204138.png" alt="image-20210727204130079" style="zoom:50%;" />
+<img src="./assets/20210727204138.png" alt="image-20210727204130079" style="zoom:50%;" />
 
 则哈希索引的数据结构如下：
 
-<img src="https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210727204224.png" alt="image-20210727204222982" style="zoom:50%;" />
+<img src="./assets/20210727204224.png" alt="image-20210727204222982" style="zoom:50%;" />
 
 下面看看下面查询：
 

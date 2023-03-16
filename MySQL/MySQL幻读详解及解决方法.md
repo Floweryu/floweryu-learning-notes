@@ -2,17 +2,17 @@
 
 建立一张表如下：
 
-![image-20210402161531899](https://i.loli.net/2021/04/02/w36CHgQMjhiqptu.png)
+![image-20210402161531899](./assets/w36CHgQMjhiqptu.png)
 
 按照下面步骤执行两个事务。
 
 **事务1**：
 
-![image-20210402161856788](https://i.loli.net/2021/04/02/vnUuD5L8mpcBE3e.png)
+![image-20210402161856788](./assets/vnUuD5L8mpcBE3e.png)
 
 **事务2**：
 
-![image-20210402162014354](https://i.loli.net/2021/04/02/g9Fub3mO6wDPTcB.png)
+![image-20210402162014354](./assets/g9Fub3mO6wDPTcB.png)
 
 由此，可以把**幻读理解**为：select 某记录是否存在，不存在，准备插入此记录，但执行 insert 时发现此记录已存在，无法插入，此时就发生了幻读。
 
@@ -31,11 +31,11 @@ SELECT `id` FROM `users` WHERE `id` = 1 FOR UPDATE;
 
 **T1事务**
 
-![image-20210402163829717](https://i.loli.net/2021/04/02/4DwsYB5E3Umvk12.png)
+![image-20210402163829717](./assets/4DwsYB5E3Umvk12.png)
 
 **T2事务**
 
-![image-20210402163942322](https://i.loli.net/2021/04/02/zTfBFv4yCXNUELe.png)
+![image-20210402163942322](./assets/zTfBFv4yCXNUELe.png)
 
 > id = 3 的记录不存在，开始执行事务
 >
@@ -53,7 +53,7 @@ SELECT `id` FROM `users` WHERE `id` = 1 FOR UPDATE;
 
 先修改数据库隔离级别：MySQL8查询事务应该使用`transaction_isolation`，`tx_isolation`在MySQL 5.7.20后被弃用。
 
-![image-20210403093544328](https://i.loli.net/2021/04/03/PtQpDrB7ymOJv8o.png)
+![image-20210403093544328](./assets/PtQpDrB7ymOJv8o.png)
 
 > 设置数据库隔离级别为SERIALIZABLE，左边是事务T1，右边是事务T2.
 >

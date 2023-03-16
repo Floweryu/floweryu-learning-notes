@@ -63,10 +63,11 @@
 因此，` redo log buffer `写入 `redo logfile `实际上是先写入 `OS Buffer` ，然后再通过系统调用 `fsync() `将其刷到 `redo log file`.
 
 **mysql** 支持三种将 `redo log buffer `写入` redo log file `的时机，可以通过 `innodb_flush_log_at_trx_commit `参数配置，各参数值含义如下：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201206164117704.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+<img src="./assets/image-20230316230534792.png" alt="image-20230316230534792" style="zoom:50%;" />
+
 ### `redo log`记录形式
 `redo log` 实际上记录数据页的变更，而这种变更记录是没必要全部保存，因此 `redo log`实现上采用了大小固定，循环写入的方式，当写到结尾时，会回到开头循环写日志。如下图：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201206164235402.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+<img src="./assets/image-20230316230547581.png" alt="image-20230316230547581" style="zoom:50%;" />
 在`innodb`中，既有`redo log` 需要刷盘，还有 数据页 也需要刷盘， `redo log`存在的意义**主要就是降低对 数据页 刷盘的要求** 。
 
 在上图中， `write pos` 表示 `redo log` 当前记录的` LSN (逻辑序列号)`位置，` check point `表示 数据页更改记录 刷盘后对应` redo log `所处的 LSN(逻辑序列号)位置。
@@ -79,12 +80,13 @@
 
 还有一种情况，在宕机前正处于checkpoint 的刷盘过程，且数据页的刷盘进度超过了日志页的刷盘进度，此时会出现数据页中记录的 LSN 大于日志中的 LSN，这时超出日志进度的部分将不会重做，因为这本身就表示已经做过的事情，无需再重做。
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/2020120616461746.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+<img src="./assets/image-20230316230602883.png" alt="image-20230316230602883" style="zoom:50%;" />
 由 `binlog `和 `redo log `的区别可知：`binlog` 日志只用于归档，只依靠` binlog `是没有` crash-safe `能力的。
 
 但只有 `redo log `也不行，因为 `redo log` 是 InnoDB特有的，且日志上的记录落盘后会被覆盖掉。因此需要` binlog`和 `redo log`二者同时记录，才能保证当数据库发生宕机重启时，数据不会丢失。
 
 ## 三、`undo log`
+
 数据库事务四大特性中有一个是 **原子性** ，具体来说就是 原子性是指对数据库的一系列操作，要么全部成功，要么全部失败，不可能出现部分成功的情况。
 
 实际上， 原子性 底层就是通过 `undo log` 实现的。`undo log`主要记录了数据的逻辑变化，比如一条 `INSERT` 语句，对应一条`DELETE` 的 `undo log `，对于每个` UPDATE `语句，对应一条相反的 `UPDATE` 的 `undo log` ，这样在发生错误时，就能回滚到事务之前的数据状态。

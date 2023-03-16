@@ -15,7 +15,7 @@ InnoDB是事务型数据库的首选引擎，支持事务安全表（ACID），�
 
 InnoDB也使用`B+Tree`作为索引结构，但具体实现方式却与MyISAM截然不同。
 
-![image-20210319161803405](https://i.loli.net/2021/03/19/r2UhHpfGxgtA4VJ.png)
+![image-20210319161803405](./assets/r2UhHpfGxgtA4VJ.png)
 
 - **InnoDB的数据文件本身就是索引文件，叶节点包含了完整的数据记录。这种索引叫做**聚集索引**。MyISAM索引文件和数据文件是分离的**，索引文件仅保存数据记录的地址。而在InnoDB中，表数据文件本身就是按B+Tree组织的一个索引结构，**这棵树的叶节点data域保存了完整的数据记录**。这个索引的key是数据表的主键，因此InnoDB表数据文件本身就是主索引。
 
@@ -46,7 +46,7 @@ MyISAM拥有较高的插入、查询速度，但**不支持事务**。
 
 使用**B+Tree**作为索引结构，**叶节点的data域存放的是数据记录的地址**。
 
-![image-20210319162529056](https://i.loli.net/2021/03/19/jUkZuDVdIxME2aF.png)
+![image-20210319162529056](./assets/jUkZuDVdIxME2aF.png)
 
 **MyISAM中索引检索的算法为首先按照B+Tree搜索算法搜索索引，如果指定的Key存在，则取出其data域的值，然后以data域的值为地址，读取相应数据记录。**
 MyISAM的索引方式也叫做“非聚集”的，之所以这么称呼是为了与InnoDB的聚集索引区分。

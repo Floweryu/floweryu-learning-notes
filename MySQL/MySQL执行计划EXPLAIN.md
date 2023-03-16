@@ -6,7 +6,7 @@
 
 如果没有子查询或者关联查询的话，就只有一条。
 
-![image-20210822153748244](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210822153750.png)
+![image-20230316230726288](./assets/image-20230316230726288.png)
 
 如果是子查询，可能包含多个`select`关键字，每个关键字都会对应一个唯一的`id`值。
 
