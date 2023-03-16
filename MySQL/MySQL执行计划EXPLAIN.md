@@ -12,11 +12,11 @@
 
 但需要注意的是：**查询优化器可能对涉及子查询的语句进行重写，从而转换为连接查询。**此时执行计划的id值就是唯一的了。
 
-![image-20210822150105007](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210822150106.png)
+![image-20230316230937600](./assets/image-20230316230937600.png)
 
 如果是联合查询，那么就会出现一条id为NULL的记录，因为`union`结果会放到临时表中，临时表并不在原SQL中出现，所以这里的`table`是`<union1,2>`这种格式，表示将id为1和2的查询关联。
 
-![image-20210822150953982](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210822150955.png)
+![image-20230316231007612](./assets/image-20230316231007612.png)
 
 #### `select_type`：查询类型
 
@@ -374,7 +374,7 @@ possible_keys: idx_name1_name2
 >
 > sql 是 where user_id = ? order by  create_time,  那索引  (user_id,create_time)是最优的
 
-![image-20210826204557101](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826204603.png)
+![image-20230316231032327](./assets/image-20230316231032327.png)
 
 在`rental_duration和length`不是组合索引的情况下，执行下面SQL：
 
@@ -382,17 +382,17 @@ possible_keys: idx_name1_name2
 explain select * from film where rental_duration = 6 order by length;
 ```
 
-![image-20210826204835573](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826204837.png)
+![image-20230316231043040](./assets/image-20230316231043040.png)
 
 Extra中出现`Using filesort`，说明需要进行优化。
 
 添加组合索引：`(rental_duration,length)`
 
-![image-20210826205252992](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826205254.png)
+![image-20230316231350775](./assets/image-20230316231350775.png)
 
 再执行上述SQL：
 
-![image-20210826205425066](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826205426.png)
+![image-20230316231330793](./assets/image-20230316231330793.png)
 
 #### `UNION/UNION ALL/IN/OR`
 
@@ -410,7 +410,7 @@ mysql> explain select * from actor where actor_id in (1, 2);
 mysql> explain select * from actor where actor_id = 1 or actor_id = 2;
 ```
 
-![image-20210826173129651](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210826190326.png)
+![image-20230316231310222](./assets/image-20230316231310222.png)
 
 **`IN`和`OR`哪个效率高?**
 
@@ -468,7 +468,7 @@ ERROR 1205 (HY000): Lock wait timeout exceeded; try restarting transaction
 
 使用`show engine innodb status\G;`查看日志可以得到
 
-![image-20210829174705587](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210829174955.png)
+![image-20230316231240380](./assets/image-20230316231240380.png)
 
 事务1的`update`语句正常执行如下：
 
