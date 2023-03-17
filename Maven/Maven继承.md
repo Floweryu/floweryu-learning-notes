@@ -34,11 +34,11 @@
 
 假如一个项目的结构如下：
 
-![image-20220119114523858](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201191145378.png)
+![image-20220119114523858](./assets/202201191145378.png)
 
 进行构建可以得到下面输出：
 
-![image-20220119141028102](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201191410668.png)
+![image-20220119141028102](./assets/202201191410668.png)
 
 
 

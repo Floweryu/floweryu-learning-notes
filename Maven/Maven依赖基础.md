@@ -32,7 +32,7 @@
 
 - import：导入依赖范围。在maven2.0.9加入，该依赖不会对三种classpath产生实际影响。
 
-![image-20220113161914325](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201131619712.png)
+![image-20220113161914325](./assets/202201131619712.png)
 
 #### 1.4 标记依赖是否可选：`optional`
 
@@ -44,7 +44,7 @@
 
 第一直接依赖的范围和第二直接依赖的范围决定了传递性依赖的范围。
 
-![image-20220113164508121](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201131645498.png)
+![image-20220113164508121](./assets/202201131645498.png)
 
 举个例子：
 

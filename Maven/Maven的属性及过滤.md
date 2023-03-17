@@ -82,4 +82,4 @@ spring.datasource.url: ${mysql.datasource.url}
 
 资源处理是`maven-resources-plugin`做的事情，将项目主资源文件复制到主代码编译输出目录中，将测试资源文件复制到测试代码编译输出目录中。
 
-![image-20220119161414617](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201191614702.png)
+![image-20220119161414617](./assets/202201191614702.png)

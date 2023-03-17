@@ -16,7 +16,7 @@
 
 ### 包含和排除测试类
 
-![image-20220119144416327](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201191444120.png)
+![image-20220119144416327](./assets/202201191444120.png)
 
-![image-20220119144425472](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201191444566.png)
+![image-20220119144425472](./assets/202201191444566.png)
 
