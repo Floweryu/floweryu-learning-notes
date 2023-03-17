@@ -1,10 +1,10 @@
 1. 配置文件对大小写不敏感
 
-   ![image-20210529190308439](https://i.loli.net/2021/05/29/xKJh2bS4wRkGcyo.png)
+   ![image-20210529190308439](./assets/xKJh2bS4wRkGcyo.png)
 
 2. 可以包含其它配置文件
 
-   ![image-20210529182618220](https://i.loli.net/2021/05/29/IMpynLa9uVNtRif.png)
+   ![image-20210529182618220](./assets/IMpynLa9uVNtRif.png)
 
 ```bash
 ###网络相关###

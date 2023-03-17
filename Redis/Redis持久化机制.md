@@ -21,7 +21,7 @@ RDB文件的载入工作是在服务器启动时自动执行的，Redis没有专
 > - 如果服务器开启了AFO持久化功能，那么服务器会优先使用AFO文件来还原数据库状态。
 > - 只有在AFO持久化功能处于关闭状态时，服务器才会使用RDB文件来还原数据库状态。
 
-![image-20210305104729387](https://i.loli.net/2021/03/05/89nPHosa2hpzLmX.png)
+![image-20210305104729387](./assets/89nPHosa2hpzLmX.png)
 
 ## 1.2 `SAVE`命令执行时服务器状态
 
@@ -83,7 +83,7 @@ Redis周期性操作函数`serverCron`默认每隔100毫秒就会执行一次，
 
 ## 1.6 RDB文件结构
 
-![image-20210305135556398](https://i.loli.net/2021/03/05/7kjYPBV6xwe2UNC.png)
+![image-20210305135556398](./assets/7kjYPBV6xwe2UNC.png)
 
 - `REDIS`部分长度为5个字节，保存着`REDIS`五个字符。通过这五个字符，程序在载入文件时，快速检查所载入的文件是否RDB文件。
 - `db_version`长度为4个字节，它的值是一个字符串表示的整数，这个整数记录了RDB文件的版本号。比如`0006`代表RDB文件版本为第六版。
@@ -99,13 +99,13 @@ Redis周期性操作函数`serverCron`默认每隔100毫秒就会执行一次，
 
 例如，如果服务器的0号和3号数据库非空，则将创建以下结构RDB文件：
 
-![image-20210305141958845](https://i.loli.net/2021/03/05/xe6FMNyjmBwIbGi.png)
+![image-20210305141958845](./assets/xe6FMNyjmBwIbGi.png)
 
 每个`database`都包含数据库所有键值对。
 
 每个非空数据库在RDB文件中都可以保存为`SELECTDB`、`db_number`、`key_value_pairs`三个部分。
 
-![image-20210305142202954](https://i.loli.net/2021/03/05/tH5gQskyvZaX1cq.png)
+![image-20210305142202954](./assets/tH5gQskyvZaX1cq.png)
 
 - `SELECTDB`常量的长度为1字节，标示将要读入的数据库号码。
 - `db_number`保存着一个数据库号码，根据号码大小不同，这个部分长度可以是1字节、2字节、5字节等。当程序读入`db_number`部分后，服务器会调用`SELECT`命令，根据读入的数据库号码进行数据库的切换，使得读入的键值对可以正确载入到数据库中。
@@ -117,7 +117,7 @@ RDB文件中的每个`key_value_pairs`部分都保存了一个或以上数量的
 
 不带过期时间的键值对如下：
 
-![image-20210305202119931](https://i.loli.net/2021/03/05/tblpo7wmIUfGzjE.png)
+![image-20210305202119931](./assets/tblpo7wmIUfGzjE.png)
 
 - `TYPE`记录了`value`类型，长度为1字节。
 - `KEY`总是一个字符串对象。
@@ -125,7 +125,7 @@ RDB文件中的每个`key_value_pairs`部分都保存了一个或以上数量的
 
 带有过期时间的键值对如下：
 
-![image-20210305202032401](https://i.loli.net/2021/03/05/OiWZSKRYubopGBf.png)
+![image-20210305202032401](./assets/OiWZSKRYubopGBf.png)
 
 - `EXPIRETIME_MS`常量的长度为1字节，它告知读入程序，接下来要读入的是一个以毫秒为单位的过期时间。
 - `ms`是一个8字节长的带符号整数，记录着一个以毫秒为单位的UNIX时间戳，这个时间戳就是键值对的过期时间。
@@ -164,7 +164,7 @@ AOF文件如果出现错误，则redis不会正常启动，可以使用`redis-ch
 
 
 
-![image-20210305210234588](https://i.loli.net/2021/03/05/cOAFdPRsgm7xV1n.png)
+![image-20210305210234588](./assets/cOAFdPRsgm7xV1n.png)
 
 ## 2.3 AOF文件重写
 

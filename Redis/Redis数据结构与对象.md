@@ -10,7 +10,7 @@ struct sdshdr {
 }
 ```
 
-![image-20210306123735804](https://i.loli.net/2021/03/06/2dnSaYf8ELbZwvJ.png)
+![image-20210306123735804](./assets/2dnSaYf8ELbZwvJ.png)
 
 ## 1.2 SDS与C字符串的区别
 
@@ -112,11 +112,11 @@ index = hash & dict->ht[x].sizemask;
 
 链地址法：总是将新节点添加到链表表头的位置。
 
-![image-20210306143633380](https://i.loli.net/2021/03/06/oJ8tYES64POIUGk.png)
+![image-20210306143633380](./assets/oJ8tYES64POIUGk.png)
 
 # 4. 跳跃表(Skip List)
 
-![image-20210306181234657](https://i.loli.net/2021/03/06/dTis4hCSugZoXyn.png)
+![image-20210306181234657](./assets/dTis4hCSugZoXyn.png)
 
 图片最左侧是跳跃表结构：
 
@@ -169,4 +169,4 @@ typedef struct intset {
 
 # 6. 压缩列表(ziplist)
 
-![image-20210306204120032](https://i.loli.net/2021/03/06/E1YPyZ5Tjpk8CIH.png)
+![image-20210306204120032](./assets/E1YPyZ5Tjpk8CIH.png)

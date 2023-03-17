@@ -59,7 +59,7 @@ struct ziplist<T>{
 
 压缩列表为了支持双向遍历，所以才会有 `ztail_offset` 这个字段，用来快速定位到最后一个元素，然后倒着遍历.
 
-![image-20210422172157768](https://i.loli.net/2021/04/22/iRNXkDWKsoqBLVG.png)
+![image-20210422172157768](./assets/iRNXkDWKsoqBLVG.png)
 
 `entry`的数据结构：
 

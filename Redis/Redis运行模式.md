@@ -27,9 +27,9 @@ Redis四种运行模式分别为：**单机部署**、**主从模式**、**哨�
 - 分别运行`redis-cli -p 6379`和`redis-cli -p 6380`
 - 然后在各自客户端下运行`info replication`就可以查看到下面信息：
 
-![image-20210306212523255](https://i.loli.net/2021/03/06/JUMwtG69FQgesfj.png)
+![image-20210306212523255](./assets/JUMwtG69FQgesfj.png)
 
-![image-20210306212557519](https://i.loli.net/2021/03/06/Ng9WJ5HVSw1s8Rp.png)
+![image-20210306212557519](./assets/Ng9WJ5HVSw1s8Rp.png)
 
 ## 2.3 主从验证
 
@@ -54,13 +54,13 @@ OK
 
 ## 2.4 主节点关机，从节点顶替
 
-![image-20210306213126775](https://i.loli.net/2021/03/06/tIPgbGOeXEkdh7L.png)
+![image-20210306213126775](./assets/tIPgbGOeXEkdh7L.png)
 
-![image-20210306213148542](https://i.loli.net/2021/03/06/AZslkfO4DFRLYSE.png)
+![image-20210306213148542](./assets/AZslkfO4DFRLYSE.png)
 
 此时想要从节点顶替主节点，在从节点上执行`slaveof no one`即可：
 
-![image-20210306213310610](https://i.loli.net/2021/03/06/VYNlP2ZQniORchz.png)
+![image-20210306213310610](./assets/VYNlP2ZQniORchz.png)
 
 ## 2.5 宕机节点恢复
 
@@ -95,7 +95,7 @@ OK
 
 由于无法进行主动恢复，因此主从模式衍生出了哨兵模式。哨兵模式基于主从复制模式，只是引入了哨兵来监控与自动处理故障。如图：
 
-![image-20210306214225161](https://i.loli.net/2021/03/06/97VXMUO3WGNZ5qQ.png)
+![image-20210306214225161](./assets/97VXMUO3WGNZ5qQ.png)
 
 哨兵顾名思义，就是来为Redis集群站哨的，一旦发现问题能做出相应的应对处理。其功能包括：
 
@@ -211,13 +211,13 @@ redis-server sentinel.conf --sentinel
 
 通过代码的实现方式，实现集群访问，如下图所示：
 
-![img](https://i.loli.net/2021/03/07/jTva42IzXgbEmHG.png)
+![img](./assets/jTva42IzXgbEmHG.png)
 
 这样的访问方式都通过代码来维护集群以及访问路径，可是这样的方式 维护难度大，也不支持动态扩容，因为一切都以代码实现访问规划。
 
 ## 4.2 Proxy代理层
 
-![img](https://i.loli.net/2021/03/07/1sN5dBX7yUQDvEr.png)
+![img](./assets/1sN5dBX7yUQDvEr.png)
 
 Redis和我们的客户端之间新加了一层Proxy，我们通过Proxy去规划访问，这样我们在代码层面以及Redis部署层面就无需处理。
 
@@ -234,7 +234,7 @@ Redis和我们的客户端之间新加了一层Proxy，我们通过Proxy去规�
 
 Cluster模式实现了Redis的分布式存储，即每台节点存储不同的内容，来解决在线扩容的问题。如图：
 
-![img](https://i.loli.net/2021/03/07/JgDrwIQNs4xRp63.png)
+![img](./assets/JgDrwIQNs4xRp63.png)
 
 RedisCluster采用无中心结构,它的特点如下：
 
@@ -248,11 +248,11 @@ Cluster模式的具体工作机制：
 
 - 在Redis的每个节点上，都有一个插槽（slot），总共16384个哈希槽，取值范围为0-16383。如下图所示，跟前三种模式不同，Redis不再是默认有16(0-15)个库，也没有默认的0库说法，而是采用Slot的设计(一个集群有多个主从节点，一个主从节点上会分配多个Slot槽，每个槽点上存的是Key-Value数据):
 
-![img](https://i.loli.net/2021/03/07/KE4Fztp7bBOec2g.png)
+![img](./assets/KE4Fztp7bBOec2g.png)
 
 - 当我们存取key的时候，Redis会根据CRC16的算法得出一个结果，然后把结果对16384求余数，这样每个key都会对应一个编号在0-16383之间的哈希槽，通过这个值，去找到对应的插槽所对应的节点，然后直接自动跳转到这个对应的节点上进行存取操作。如图所示：
 
-![img](https://i.loli.net/2021/03/07/EcZ6JO1KhrFMT3l.png)
+![img](./assets/EcZ6JO1KhrFMT3l.png)
 
 - 为了保证高可用，Cluster模式也引入主从复制模式，一个主节点对应一个或者多个从节点，当主节点宕机的时候，就会启用从节点。
 
