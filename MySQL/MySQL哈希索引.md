@@ -43,6 +43,6 @@ InnoDB可以创建**自适应哈希索引**。当某些索引值被使用的非�
 
 > 可以对一些字符串列自定义Hash索引，额外设置一个hash列，这个hash列可以作为字符串的哈希索引。这样在查询时可以使用下面这种方式进行查询：
 >
-> <img src="https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210729164825.png" alt="image-20210729164812866" style="zoom:50%;" />
+> <img src="./assets/20210729164825.png" alt="image-20210729164812866" style="zoom:50%;" />
 >
 > 这样数据库会先走索引查询记录，但由于可能索引会产生冲突，所以又添加了常量判断来保证查询结果正确。
