@@ -81,7 +81,7 @@ public static ShardCfg shard2(String userId) { 
 
 证明如下：
 
-![img](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202206191521838.jpg)
+![img](./assets/202206191521838.jpg)
 
 通过上面结论我们知道，通过翻倍扩容后，我们的表序号一定维持不变，库序号可能还是在原来库，也可能平移到了新库中(原库序号加上原分库数)，完全符合我们需要的扩容持久性方案。
 
