@@ -213,7 +213,7 @@ HashMap **计算桶下标（index）公式：`key.hashCode() ^ (h >>> 16)`**。
 
 在 `get` 和 `put` 的过程中，计算下标时，先对 `hashCode` 进行 `hash` 操作，然后再通过 `hash` 值进一步计算下标，如下图所示：
 
-![img](https://i.loli.net/2021/03/12/d39MzoLh15BxrfN.png)
+![img](./assets/d39MzoLh15BxrfN.png)
 
 在对 `hashCode()` 计算 hash 时具体实现是这样的：
 
@@ -253,15 +253,15 @@ static final int hash(Object key) {
 
 怎么理解呢？例如我们从 16 扩展为 32 时，具体的变化如下所示:
 
-![img](https://i.loli.net/2021/03/12/bXUQn6AlRIvGt5V.png)
+![img](./assets/bXUQn6AlRIvGt5V.png)
 
 因此元素在重新计算 hash 之后，因为 n 变为 2 倍，那么 n-1 的 mask 范围在高位多 1bit(红色)，因此新的 index 就会发生这样的变化：
 
-![img](https://i.loli.net/2021/03/12/9gyAOu54qXbLHrf.png)
+![img](./assets/9gyAOu54qXbLHrf.png)
 
 因此，我们在扩充 HashMap 的时候，不需要重新计算 hash，只需要看看原来的 hash 值新增的那个 bit 是 1 还是 0 就好了，是 0 的话索引没变（相与)，是 1 的话索引变成“原索引+oldCap”。可以看看下图为 16 扩充为 32 的 resize 示意图：
 
-![img](https://i.loli.net/2021/03/12/rOVXulzSGT2CZ1a.png)
+![img](./assets/rOVXulzSGT2CZ1a.png)
 
 这个设计确实非常的巧妙，既省去了重新计算 hash 值的时间，而且同时，由于新增的 1bit 是 0 还是 1 可以认为是随机的，因此 resize 的过程，均匀的把之前的冲突的节点分散到新的 bucket 了。
 

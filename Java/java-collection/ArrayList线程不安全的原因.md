@@ -53,7 +53,7 @@ public class ArrayListTest {
 }
 ```
 
-![image-20211022152652709](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20211022152654.png)
+![image-20211022152652709](./assets/20211022152654.png)
 
 查看ArrayList的add方法的源码，发现线程不安全的地方是下面两个点：
 
