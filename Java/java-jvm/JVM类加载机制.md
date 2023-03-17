@@ -8,7 +8,7 @@
 
 # 2. 类的生命周期
 
-![image-20210303143334076](https://i.loli.net/2021/03/03/1r2qfStMCUFxhgX.png)
+![image-20210303143334076](./assets/1r2qfStMCUFxhgX.png)
 
 Java 类的完整生命周期包括以下七个阶段：
 
@@ -292,7 +292,7 @@ null
 
 下图展示的类加载器之间的层次关系，称为类加载器的**双亲委派模型（Parents Delegation Model）**。**该模型要求除了顶层的 Bootstrap ClassLoader 外，其余的类加载器都应有自己的父类加载器**。**这里类加载器之间的父子关系一般通过组合（Composition）关系来实现，而不是通过继承（Inheritance）的关系实现**。
 
-![image-20210303220500052](https://i.loli.net/2021/03/03/8yuenXJA1IfMv9G.png)
+![image-20210303220500052](./assets/8yuenXJA1IfMv9G.png)
 
 #### 工作过程
 

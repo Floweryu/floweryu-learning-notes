@@ -2,7 +2,7 @@
 
 Java中的线程池核心实现类是ThreadPoolExecutor，本章基于JDK 1.8的源码来分析Java线程池的核心设计与实现。我们首先来看一下ThreadPoolExecutor的UML类图，了解下ThreadPoolExecutor的继承关系。
 
-![image-20210608173421824](https://i.loli.net/2021/06/08/g6VmnoFCwuaPhDW.png)
+![image-20210608173421824](./assets/g6VmnoFCwuaPhDW.png)
 
 ThreadPoolExecutor实现的顶层接口是Executor，顶层接口Executor提供了一种思想：将任务提交和任务执行进行解耦。用户无需关注如何创建线程，如何调度线程来执行任务，用户只需提供Runnable对象，将任务的运行逻辑提交到执行器(Executor)中，由Executor框架完成线程的调配和任务的执行部分。
 
@@ -18,7 +18,7 @@ AbstractExecutorService则是上层的抽象类，将执行任务的流程串联
 
 ThreadPoolExecutor是如何运行，如何同时维护线程和执行任务的呢？其运行机制如下图所示：
 
-![图2 ThreadPoolExecutor运行流程](https://i.loli.net/2021/06/08/fICdioa67uATjzM.png)
+![图2 ThreadPoolExecutor运行流程](./assets/fICdioa67uATjzM.png)
 
 线程池在内部实际上构建了一个生产者消费者模型，将线程和任务两者解耦，并不直接关联，从而良好的缓冲任务，复用线程。线程池的运行主要分成两部分：任务管理、线程管理。
 
@@ -69,11 +69,11 @@ private static final int TERMINATED =  3 << COUNT_BITS;
 
 ThreadPoolExecutor的运行状态有5种，分别为：
 
-![img](https://i.loli.net/2021/06/08/dFfl2VviSmhGnrL.png)
+![img](./assets/dFfl2VviSmhGnrL.png)
 
 其生命周期转换如下图所示：
 
-![图3 线程池生命周期](https://i.loli.net/2021/06/08/8tFVedWwTYU2i7y.png)
+![图3 线程池生命周期](./assets/8tFVedWwTYU2i7y.png)
 
 # 3. 任务执行机制
 
@@ -91,7 +91,7 @@ ThreadPoolExecutor的运行状态有5种，分别为：
 
 其执行流程如下图所示：
 
-![图4 任务调度流程](https://i.loli.net/2021/06/08/mvhDag5ZQUYrBIL.png)
+![图4 任务调度流程](./assets/mvhDag5ZQUYrBIL.png)
 
 ## 3.2 任务缓冲
 
@@ -105,11 +105,11 @@ ThreadPoolExecutor的运行状态有5种，分别为：
 
 下图中展示了线程1往阻塞队列中添加元素，而线程2从阻塞队列中移除元素：
 
-![图5 阻塞队列](https://i.loli.net/2021/06/08/4GCtd7i1WPZxlV9.png)
+![图5 阻塞队列](./assets/4GCtd7i1WPZxlV9.png)
 
 使用不同的队列可以实现不一样的任务存取策略。在这里，我们可以再介绍下阻塞队列的成员：
 
-![img](https://i.loli.net/2021/06/08/SXCsWL4H5TrFD6I.png)
+![img](./assets/SXCsWL4H5TrFD6I.png)
 
 ## 3.3 任务申请
 
@@ -117,7 +117,7 @@ ThreadPoolExecutor的运行状态有5种，分别为：
 
 线程需要从任务缓存模块中不断地取任务执行，帮助线程从阻塞队列中获取任务，实现线程管理模块和任务管理模块之间的通信。这部分策略由getTask方法实现，其执行流程如下图所示：
 
-![图6 获取任务流程图](https://i.loli.net/2021/06/08/aOX8fKN3FGr7nks.png)
+![图6 获取任务流程图](./assets/aOX8fKN3FGr7nks.png)
 
 getTask这部分进行了多次判断，为的是控制线程的数量，使其符合线程池的状态。如果线程池现在不应该持有那么多线程，则会返回null值。工作线程Worker会不断接收新任务去执行，而当工作线程Worker接收不到任务的时候，就会开始被回收。
 
@@ -135,7 +135,7 @@ public interface RejectedExecutionHandler {
 
 用户可以通过实现这个接口去定制拒绝策略，也可以选择JDK提供的四种已有拒绝策略，其特点如下：
 
-![img](https://i.loli.net/2021/06/08/S2xL6jdbTtZcUpm.png)
+![img](./assets/S2xL6jdbTtZcUpm.png)
 
 # 4. Worker线程管理
 
@@ -156,7 +156,7 @@ thread是在调用构造方法时通过ThreadFactory来创建的线程，可以�
 
 Worker执行任务的模型如下图所示：
 
-![图7 Worker执行任务](https://i.loli.net/2021/06/08/yhNpMqemwdrW9f2.png)
+![图7 Worker执行任务](./assets/yhNpMqemwdrW9f2.png)
 
 线程池需要管理线程的生命周期，需要在线程长时间不运行的时候进行回收。线程池使用一张Hash表去持有线程的引用，这样可以通过添加引用、移除引用这样的操作来控制线程的生命周期。这个时候重要的就是如何判断线程是否在运行。
 
@@ -170,7 +170,7 @@ Worker是通过继承AQS，使用AQS来实现独占锁这个功能。没有使�
 
 在线程回收过程中就使用到了这种特性，回收过程如下图所示：
 
-![图8 线程池回收过程](https://i.loli.net/2021/06/08/VjwUTFoDlsz8vAn.png)
+![图8 线程池回收过程](./assets/VjwUTFoDlsz8vAn.png)
 
 ## 4.2 **Worker线程增加**
 
@@ -178,7 +178,7 @@ Worker是通过继承AQS，使用AQS来实现独占锁这个功能。没有使�
 
 addWorker方法有两个参数：firstTask、core。firstTask参数用于指定新增的线程执行的第一个任务，该参数可以为空；core参数为true表示在新增线程时会判断当前活动线程数是否少于corePoolSize，false表示新增线程前需要判断当前活动线程数是否少于maximumPoolSize，其执行流程如下图所示：
 
-![图9 申请线程执行流程图](https://i.loli.net/2021/06/08/iM4JAGlWobpSkRF.png)
+![图9 申请线程执行流程图](./assets/iM4JAGlWobpSkRF.png)
 
 ## 4.3 **Worker线程回收**
 
@@ -198,7 +198,7 @@ try {
 
 线程回收的工作是在processWorkerExit方法完成的。
 
-![图10 线程销毁流程](https://i.loli.net/2021/06/08/lorxVuD4GOIatPn.png)
+![图10 线程销毁流程](./assets/lorxVuD4GOIatPn.png)
 
 事实上，在这个方法中，将线程引用移出线程池就已经结束了线程销毁的部分。但由于引起线程销毁的可能性有很多，线程池还要判断是什么引发了这次销毁，是否要改变线程池的现阶段状态，是否要根据新状态，重新分配线程。
 
@@ -214,7 +214,7 @@ try {
 
 执行流程如下图所示：
 
-![图11 执行任务流程](https://i.loli.net/2021/06/08/GN2kTY8AK4i7XnQ.png)
+![图11 执行任务流程](./assets/GN2kTY8AK4i7XnQ.png)
 
 # 5. 线程池在业务中的实践
 
@@ -226,7 +226,7 @@ try {
 
 **分析**：从用户体验角度看，这个结果响应的越快越好，如果一个页面半天都刷不出，用户可能就放弃查看这个商品了。而面向用户的功能聚合通常非常复杂，伴随着调用与调用之间的级联、多级级联等情况，业务开发同学往往会选择使用线程池这种简单的方式，将调用封装成任务并行的执行，缩短总体响应时间。另外，使用线程池也是有考量的，这种场景最重要的就是获取最大的响应速度去满足用户，所以应该不设置队列去缓冲并发任务，调高corePoolSize和maxPoolSize去尽可能创造多的线程快速执行任务。
 
-![图12 并行执行任务提升任务响应速度](https://i.loli.net/2021/06/08/VYeHE7dytpOcbFz.png)
+![图12 并行执行任务提升任务响应速度](./assets/VYeHE7dytpOcbFz.png)
 
 **场景2：快速处理批量任务**
 
@@ -234,7 +234,7 @@ try {
 
 **分析**：这种场景需要执行大量的任务，我们也会希望任务执行的越快越好。这种情况下，也应该使用多线程策略，并行计算。但与响应速度优先的场景区别在于，这类场景任务量巨大，并不需要瞬时的完成，而是关注如何使用有限的资源，尽可能在单位时间内处理更多的任务，也就是吞吐量优先的问题。所以应该设置队列去缓冲并发任务，调整合适的corePoolSize去设置处理任务的线程数。在这里，设置的线程数过多可能还会引发线程上下文切换频繁的问题，也会降低处理任务的速度，降低吞吐量。
 
-![图13 并行执行任务提升批量任务执行速度](https://i.loli.net/2021/06/08/iwsKVH9py5vhmle.png)
+![图13 并行执行任务提升批量任务执行速度](./assets/iwsKVH9py5vhmle.png)
 
 ## 5.2 实际问题及方案思考
 
@@ -248,7 +248,7 @@ try {
 
 **事故原因**：该服务展示接口内部逻辑使用线程池做并行计算，由于没有预估好调用的流量，导致最大核心数设置偏小，大量抛出RejectedExecutionException，触发接口降级条件，示意图如下：
 
-![图14 线程数核心设置过小引发RejectExecutionException](https://i.loli.net/2021/06/08/jKu41ob7EqkTLOF.png)
+![图14 线程数核心设置过小引发RejectExecutionException](./assets/jKu41ob7EqkTLOF.png)
 
 **Case2**：2018年XX业务服务不可用S2级故障
 
@@ -256,7 +256,7 @@ try {
 
 **事故原因**：该服务处理请求内部逻辑使用线程池做资源隔离，由于队列设置过长，最大线程数设置失效，导致请求数量增加时，大量任务堆积在队列中，任务执行时间过长，最终导致下游服务的大量调用超时失败。示意图如下：
 
-![图15 线程池队列长度设置过长、corePoolSize设置过小导致任务执行速度低](https://i.loli.net/2021/06/08/vKs9uTj3RErI4Zi.png)
+![图15 线程池队列长度设置过长、corePoolSize设置过小导致任务执行速度低](./assets/vKs9uTj3RErI4Zi.png)
 
 业务中要使用线程池，而使用不当又会导致故障，那么我们怎样才能更好地使用线程池呢？针对这个问题，我们下面延展几个方向：
 
@@ -264,7 +264,7 @@ try {
 
 回到最初的问题，业务使用线程池是为了获取并发性，对于获取并发性，是否可以有什么其他的方案呢替代？我们尝试进行了一些其他方案的调研：
 
-![img](https://i.loli.net/2021/06/08/UzKal5FkPQ8Ju1B.png)
+![img](./assets/UzKal5FkPQ8Ju1B.png)
 
 综合考虑，这些新的方案都能在某种情况下提升并行任务的性能，然而本次重点解决的问题是如何更简易、更安全地获得的并发性。另外，Actor模型的应用实际上甚少，只在Scala中使用广泛，协程框架在Java中维护的也不成熟。这三者现阶段都不是足够的易用，也并不能解决业务上现阶段的问题。
 
@@ -274,12 +274,12 @@ try {
 
 带着这样的疑问，我们调研了业界的一些线程池参数配置方案：
 
-![img](https://i.loli.net/2021/06/08/hH7yufMNv5i4SXB.png)
+![img](./assets/hH7yufMNv5i4SXB.png)
 
 **3. 线程池参数动态化？**
 
 尽管经过谨慎的评估，仍然不能够保证一次计算出来合适的参数，那么我们是否可以将修改线程池参数的成本降下来，这样至少可以发生故障的时候可以快速调整从而缩短故障恢复的时间呢？基于这个思考，我们是否可以将线程池的参数从代码中迁移到分布式配置中心上，实现线程池参数可动态配置和即时生效，线程池参数动态化前后的参数修改流程对比如下：
 
-![图16 动态修改线程池参数新旧流程对比](https://i.loli.net/2021/06/08/AXqJhdl6swHF5e9.png)
+![图16 动态修改线程池参数新旧流程对比](./assets/AXqJhdl6swHF5e9.png)
 
 基于以上三个方向对比，我们可以看出参数动态化方向简单有效。

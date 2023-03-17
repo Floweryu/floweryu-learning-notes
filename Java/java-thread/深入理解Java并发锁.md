@@ -317,7 +317,7 @@ public interface Condition {
 
 类图结构:
 
-![image-20210301174230467](https://i.loli.net/2021/03/01/VrZvcSt69GQOa1d.png)
+![image-20210301174230467](./assets/VrZvcSt69GQOa1d.png)
 
 ## 3.1. `ReentrantLock` 的特性
 

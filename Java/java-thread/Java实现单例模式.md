@@ -46,7 +46,7 @@ ctorInstance(memory); // 2：初始化对象
 
 这种重排序可能就会导致一个线程拿到的 instance 是非空的但是还没初始化完全。
 
-![在这里插入图片描述](https://i.loli.net/2021/04/05/puwYfUa2GJD1eIO.png)
+![在这里插入图片描述](./assets/puwYfUa2GJD1eIO.png)
 
 **为什么要 double-check？去掉任何一次的 check 行不行？**
 

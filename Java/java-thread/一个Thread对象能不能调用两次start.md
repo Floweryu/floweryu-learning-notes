@@ -26,7 +26,7 @@ public class One {
 
 结果如下：
 
-![image-20210617111607923](https://i.loli.net/2021/06/17/sZFExQ8XL2mICco.png)
+![image-20210617111607923](./assets/sZFExQ8XL2mICco.png)
 
 发现只启动了一个线程，另一个线程抛出`IllegalThreadStateException`异常。这是怎么回事呢？
 
@@ -36,7 +36,7 @@ Java的线程是不允许启动两次的，第二次调用必然会抛岀 `Illeg
 
 对于上述程序，查看`start`源码可以发现，在启动线程前会先对`threadStatus`进行判断，不为0就会抛出异常。
 
-![image-20210617112616949](https://i.loli.net/2021/06/17/rVK1Fn4ykuxZw8C.png)
+![image-20210617112616949](./assets/rVK1Fn4ykuxZw8C.png)
 
 在源码中，通过下面方法将`threadStatus`转换为线程生命周期：
 
@@ -73,4 +73,4 @@ public static State toThreadState(int var0) {
 - 计时等待（ TIMED_WAIT），其进入条件和等待状态类似，但是调用的是存在超时条件的方法，比如wait或join等方法的指定超时版本
 - 终止（ TERMINATED），不管是意外退出还是正常执行结束，线程已经完成使命，终止运行，也有人把这个状态叫作死亡。
 
-![image-20210617112453376](https://i.loli.net/2021/06/17/6b4uiHcdthlBXGe.png)
+![image-20210617112453376](./assets/6b4uiHcdthlBXGe.png)

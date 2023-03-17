@@ -70,7 +70,7 @@ public class App {
 
 > 相关命令可输入 javac -help 和 javap -help 查看
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201114102211473.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70#pic_center)
+![image-20230317113939524](./assets/image-20230317113939524.png)
 
 从上面可以看出：
 `synchronized`同步语句块使用的是`monitorenter`和`monitorexit`指令，其中，**`monitorenter`指令指向同步代码块的开始位置，`monitorexit`指令指明同步代码块的结束位置。**
@@ -92,7 +92,7 @@ public class App {
 
 ```
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201114103446964.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70#pic_center)
+![image-20230317113947467](./assets/image-20230317113947467.png)
 修饰方法时，并没有`monitorenter`和`monitorexit`指令，而是`ACC_SYNCHRONIZED`标识，该标识指明该方法是一个同步方法。JVM通过该`ACC_SYNCHRONIZED`访问标志来辨别一个方法是否声明为同步方法，从而执行相应的同步调用。
 
 ### 四、`synchronized`和`Lock`的区别
