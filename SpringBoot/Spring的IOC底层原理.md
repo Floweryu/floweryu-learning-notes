@@ -34,7 +34,7 @@ b. `ApplicationContext`：`BeanFactory`接口的子接口，提供更多更强�
 
 `ApplicationContext`接口有实现类，主要看下面两个实现类：
 
-![image-20220110224442084](Spring的IOC底层原理.assets/image-20220110224442084.png)
+![image-20220110224442084](./assets/image-20220110224442084.png)
 
 ```java
 public void testBeanLoad() {

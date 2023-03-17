@@ -77,7 +77,7 @@ public @interface ComponentScan {
 
 > 所以，包的路径扫描是多种设置累加的结果
 
-![image-20220220195322567](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202202201953137.png)
+![image-20220220195322567](./assets/202202201953137.png)
 
 #### 4.2 过滤规则
 
@@ -91,7 +91,7 @@ FilterType的类型：
 
 下面按照注解排除了Service和Controller
 
-![image-20220220210435192](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202202202104277.png)
+![image-20220220210435192](./assets/202202202104277.png)
 
 ##### 自定义规则
 
@@ -138,5 +138,5 @@ public class MainConfig {
 
 输出如下：可以看到ConfigService没有加注解，但是也被扫描出来了
 
-![image-20220220223901791](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202202202239126.png)
+![image-20220220223901791](./assets/202202202239126.png)
 

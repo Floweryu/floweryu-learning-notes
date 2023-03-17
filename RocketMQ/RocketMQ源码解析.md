@@ -1,6 +1,6 @@
 ## 简介
 
-RocketMQ整体架构设计![image-20220912180057811](RocketMQ源码解析.assets/image-20220912180057811.png)
+RocketMQ整体架构设计![image-20220912180057811](./assets/image-20220912180057811.png)
 
 
 
@@ -20,7 +20,7 @@ RocketMQ整体架构设计![image-20220912180057811](RocketMQ源码解析.assets
 
 ## 项目大概
 
-![image-20220912181620916](RocketMQ源码解析.assets/image-20220912181620916.png)
+![image-20220912181620916](./assets/image-20220912181620916.png)
 
 - **namesrv**：命名发现服务，broker 服务的管理与路由
 - **broker**：核心组件，接收 `producer`发送的消息和消息的存储与`consumer` 的消息消费
@@ -34,7 +34,7 @@ RocketMQ整体架构设计![image-20220912180057811](RocketMQ源码解析.assets
 
 ### 整体设计：
 
-![image-20220912181945829](RocketMQ源码解析.assets/image-20220912181945829.png)
+![image-20220912181945829](./assets/image-20220912181945829.png)
 
 #### 消息存储整体架构
 

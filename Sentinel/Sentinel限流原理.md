@@ -136,7 +136,7 @@ public class DefaultSlotChainBuilder implements SlotChainBuilder {
 
 下面借用官网的图片：官方链接如下：https://sentinelguard.io/zh-cn/docs/basic-implementation.html
 
-![image-20220801191458948](https://s2.loli.net/2022/08/01/9ae41dBnACkl8tm.png)
+![image-20220801191458948](./assets/9ae41dBnACkl8tm.png)
 
 整个调用链中最核心的就是 **`StatisticSlot`(**用于记录、统计不同纬度的 runtime 指标监控信息) 以及**`FlowSlot`(**根据预设的限流规则以及前面 slot 统计的状态，来进行流量控制）
 
@@ -169,7 +169,7 @@ public class DefaultProcessorSlotChain extends ProcessorSlotChain {
 
 可以看出**ProcessorSlotChain**是一个链表，里面有两个**AbstractLinkedProcessorSlot**类型的链表：first和end，即链表的头结点和尾结点。
 
-![image-20220801191557361](https://s2.loli.net/2022/08/01/VistdyuBMJv8DEb.png)
+![image-20220801191557361](./assets/VistdyuBMJv8DEb.png)
 
 然后添加通过`addLast`方法添加节点
 
@@ -186,11 +186,11 @@ public void setNext(AbstractLinkedProcessorSlot<?> next) {
 }
 ```
 
-![image-20220801191607238](https://s2.loli.net/2022/08/01/tyoI2krTDFqZcSu.png)
+![image-20220801191607238](./assets/tyoI2krTDFqZcSu.png)
 
 然后依次类推，可以得到下面的链路SlotChain：
 
-![image-20220801191620840](https://s2.loli.net/2022/08/01/krMqmgzZ6YTNOHS.png)
+![image-20220801191620840](./assets/krMqmgzZ6YTNOHS.png)
 
 ### SlotChain的链路执行
 
@@ -484,11 +484,11 @@ public WindowWrap<T> currentWindow(long timeMillis) {
 
 最开始时，`array`数组是空的，所以获取到的old是null，则会创建一个新的实例，下图是初始化的LeapArray：
 
-![image-20220814151559975](https://s2.loli.net/2022/08/14/HoMrCQhVBbFRWvN.png)
+![image-20220814151559975](./assets/HoMrCQhVBbFRWvN.png)
 
 如果当前时间走到400ms，则时间窗口不会向前滑动。当前时间超过500ms时，时间窗口就划到下一个，只要不超过1000ms，当前窗口就不会发生变化。当时间继续向前走，超过1000ms时，就会再进入下一个时间窗口：
 
-![image-20220814153836045](https://s2.loli.net/2022/08/14/Aath6QHbEulgkoq.png)
+![image-20220814153836045](./assets/Aath6QHbEulgkoq.png)
 
 这样，在当前时间点中进入的请求，会被统计到当前时间对应的窗口中：
 

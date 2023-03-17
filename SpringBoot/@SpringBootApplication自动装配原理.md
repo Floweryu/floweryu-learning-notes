@@ -95,7 +95,7 @@ static class Registrar implements ImportBeanDefinitionRegistrar, DeterminableImp
 
 利用debug可以查看一下信息：
 
-![image-20220108231528364](https://s2.loli.net/2022/07/31/C45pMbozcs3Ojwi.png)
+![image-20220108231528364](./assets/C45pMbozcs3Ojwi.png)
 
 注解的`metadata`就是启动的应用程序（MainApplication），通过该元信息，可以获取到主类所在的包名。因为该注解标注在主类上。 然后将包下面所有组件都导入容器。
 
@@ -136,7 +136,7 @@ protected AutoConfigurationImportSelector.AutoConfigurationEntry getAutoConfigur
 }
 ```
 
-![image-20220108232823402](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201082328906.png)
+![image-20220108232823402](./assets/202201082328906.png)
 
 那么，`List<String> configurations = this.getCandidateConfigurations(annotationMetadata, attributes);`是怎么获取到所有需要导入的类的呢？**利用Spring的工厂加载器`Map<String, List<String>> loadSpringFactories(ClassLoader classLoader)`获取到所有组件**
 
@@ -174,7 +174,7 @@ private static Map<String, List<String>> loadSpringFactories(ClassLoader classLo
 
 以下面包为例，只有在导入了所需要的包后，才会导入batch包。
 
-![image-20220108235036230](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201082350379.png)
+![image-20220108235036230](./assets/202201082350379.png)
 
 ## 4. 总结
 

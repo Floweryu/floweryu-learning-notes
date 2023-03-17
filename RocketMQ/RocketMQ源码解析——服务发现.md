@@ -15,12 +15,12 @@ RocketMQ没有使用Zookeeper作为服务的注册中心，而是自研的NameSr
 当消息服务器启动后，会将自己的地址信息等，注册到所有的NameSrv。
 
 
-![image.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3fa252bdbb174ebb9315293442e72f91~tplv-k3u1fbpfcp-watermark.image?)
+![image.png](./assets/3fa252bdbb174ebb9315293442e72f91tplv-k3u1fbpfcp-watermark.png)
 
 当Producer和Consumer启动后，会主动连接NameServer，获取可用的Broker列表，并选取Broker进行连接，进行消息发送与拉取。
 
 
-![image.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ea2b11fe35bd4ac694ac5bd173d6f54f~tplv-k3u1fbpfcp-watermark.image?)
+![image.png](./assets/ea2b11fe35bd4ac694ac5bd173d6f54ftplv-k3u1fbpfcp-watermark.png)
 ## 二、源码分析
 
 ### 2.1 路由注册
@@ -28,7 +28,7 @@ RocketMQ没有使用Zookeeper作为服务的注册中心，而是自研的NameSr
 在源码的broker包根目录下，有一个`BrokerStartup`启动类。
 
 
-![image.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/df85901275254794a89c0a3dc22ff503~tplv-k3u1fbpfcp-watermark.image?)
+![image.png](./assets/df85901275254794a89c0a3dc22ff503tplv-k3u1fbpfcp-watermark.png)
 
 入口代码如下：
 
@@ -316,17 +316,17 @@ RocketMQ没有使用Zookeeper作为服务的注册中心，而是自研的NameSr
 类图如下：
 
 
-![image.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2e9e8fc6f7184f26a5fe8eeadeef0b7e~tplv-k3u1fbpfcp-watermark.image?)
+![image.png](./assets/2e9e8fc6f7184f26a5fe8eeadeef0b7etplv-k3u1fbpfcp-watermark.png)
 
 topicQueueTable、brokerAddrTable运行时结构如下：
 
 
-![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/42f36eeea66e4dbfa65f0176b7c51150~tplv-k3u1fbpfcp-watermark.image?)
+![image.png](./assets/42f36eeea66e4dbfa65f0176b7c51150tplv-k3u1fbpfcp-watermark.png)
 
 brokerLiveTable、clusterAddrTable运行时结构如下：
 
 
-![image.png](https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3bfbc50de4bb4954950467a9658bf9ae~tplv-k3u1fbpfcp-watermark.image?)
+![image.png](./assets/3bfbc50de4bb4954950467a9658bf9aetplv-k3u1fbpfcp-watermark.png)
 
 #### NameServer处理心跳包
 
@@ -583,7 +583,7 @@ this.lock.writeLock().unlock();
 上面先告知Producer NameSrv 的地址，紧接着调用了**start**启动生产者。
 
 
-![image.png](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2d9b6c01aa0f40f1ae999213644a4503~tplv-k3u1fbpfcp-watermark.image?)
+![image.png](./assets/2d9b6c01aa0f40f1ae999213644a4503tplv-k3u1fbpfcp-watermark.png)
 
 下面会执行到**org.apache.rocketmq.client.impl.factory.MQClientInstance#startScheduledTask**方法，该方法也启动了一些任务：
 

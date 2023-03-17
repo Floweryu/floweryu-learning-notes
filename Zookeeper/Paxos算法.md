@@ -18,7 +18,7 @@ b. 如果Acceptor收到一个针对编号为N的提案的Accept请求，只要�
 
 #### 算法演示
 
-![image-20220912110511427](https://s2.loli.net/2022/09/12/xkGUWHVDCrL7zRj.png)
+![image-20220912110511427](./assets/xkGUWHVDCrL7zRj.png)
 
 
 
@@ -34,6 +34,6 @@ b. 如果Acceptor收到一个针对编号为N的提案的Accept请求，只要�
 
 > 假设有两个Proposer依次提出编号递增的提案，最终会陷入死循环，没有value被选定。
 
-![image-20220912144324419](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202209121458856.png)
+![image-20220912144324419](./assets/202209121458856.png)
 
 **选取一个主Proposer，只有主Proposer才能提出提案。**

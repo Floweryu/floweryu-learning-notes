@@ -75,7 +75,7 @@ List<String> configurations = SpringFactoriesLoader.loadFactoryNames(this.getSpr
 - `@ConditionalOnWebApplication` ： Web应用环境下起效
 - `@ConditionalOnNotWebApplication` ： 非Web应用环境下起效
 
-![image-20220104230544820](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201042305654.png)
+![image-20220104230544820](./assets/202201042305654.png)
 
 ### SpringFactoriesLoader
 
@@ -127,5 +127,4 @@ public static <T> List<T> loadFactories(Class<T> factoryType, @Nullable ClassLoa
 ```
 
 `loadFactories`方法首先获取类加载器，然后调用`loadFactoryNames`方法获取所有的指定资源的名称集合、接着调用`instantiateFactory`方法实例化这些资源类并将其添加到result集合中。最后调用`AnnotationAwareOrderComparator.sort`方法进行集合的排序。
-
 

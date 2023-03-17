@@ -10,7 +10,7 @@
 
 可以使用消息队列对调用的系统进行解耦，这样系统之间调用的问题就会减少很多，比如，物流系统发生故障，需要几分钟来进行修复，在这几分钟的时间里，物流系统要处理的数据被缓存在消息队列中，用户下单的操作可以正常完成。当物流系统恢复后，继续处理订单信息即可。中间用户再下单就感受不到物流系统的障碍，提高系统的可用性。
 
-![image-20210718104024644](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210718104029.png)
+![image-20210718104024644](./assets/20210718104029.png)
 
 ## 1.3 异步处理
 
@@ -18,5 +18,5 @@ A调用B的API，只需要监听B处理完后的信息，B处理完成后会发�
 
 这样A服务不同循环调用B的查询，也不用提供`callback api`。
 
-<img src="https://raw.githubusercontent.com/Floweryu/typora-img/main/img/20210718103747.png" alt="image-20210718103723104" style="zoom: 67%;" />
+<img src="./assets/20210718103747.png" alt="image-20210718103723104" style="zoom: 67%;" />
 

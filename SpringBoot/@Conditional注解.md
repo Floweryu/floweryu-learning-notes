@@ -9,7 +9,7 @@
 - ConditionalOnResource：存在资源才注入
 - ......
 
-![image-20220103204543723](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202201032045798.png)
+![image-20220103204543723](./assets/202201032045798.png)
 
 ## 自定义条件
 

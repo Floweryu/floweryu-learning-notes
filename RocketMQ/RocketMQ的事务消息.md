@@ -4,7 +4,7 @@
 
 ## 2. 执行流程
 
-![img](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202112192043820.png)
+![img](./assets/202112192043820.png)
 
 #### 事务消息发送步骤如下：
 

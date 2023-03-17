@@ -1,6 +1,6 @@
 ### 1. Zk的数据模型
 
-![image-20220327151715121](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202203271517121.png)
+![image-20220327151715121](./assets/202203271517121.png)
 
 zk数据模型类似于数据结构的树，但是不同于树的结点，zNode的引用方式是路径引用：
 
@@ -72,11 +72,11 @@ Created /test20000000006
 
 临时节点在会话后，自动被删除，通过这个特性，zk可以实现服务注册与发现效果
 
-![image-20220327152922471](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202203271529539.png)
+![image-20220327152922471](./assets/202203271529539.png)
 
 zk做注册中心原理：
 
-![image-20220327153639511](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202203271536873.png)
+![image-20220327153639511](./assets/202203271536873.png)
 
 #### 3.4 临时序号节点
 

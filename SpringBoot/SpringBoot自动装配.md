@@ -47,7 +47,7 @@ public @interface SpringBootConfiguration {
 - `@Configuration`：允许在上下文中注册额外的 bean 或导入其他配置类
 - `@ComponentScan`： 扫描被`@Component` (`@Service`,`@Controller`)注解的 bean，注解默认会扫描启动类所在的包下所有的类 ，可以自定义不扫描某些 bean。如下图所示，容器中将排除`TypeExcludeFilter`和`AutoConfigurationExcludeFilter`。
 
-![img](https://i.loli.net/2021/06/04/NqzerOMbc43Pwky.png)
+![image-20230317142316588](./assets/image-20230317142316588.png)
 
 `@EnableAutoConfiguration` 是实现自动装配的重要注解，我们以这个注解入手。
 
@@ -113,7 +113,7 @@ public String[] selectImports(AnnotationMetadata annotationMetadata) {
 
 该方法调用链如下：
 
-![img](https://i.loli.net/2021/06/04/omzxY58T7U1rMpI.png)
+![image-20230317142353942](./assets/image-20230317142353942.png)
 
 现在我们结合`getAutoConfigurationEntry()`的源码来详细分析一下：
 
@@ -145,13 +145,13 @@ AutoConfigurationEntry getAutoConfigurationEntry(AutoConfigurationMetadata autoC
 
 判断自动装配开关是否打开。默认`spring.boot.enableautoconfiguration=true`，可在 `application.properties` 或 `application.yml` 中设置
 
-![img](https://i.loli.net/2021/06/04/WVqgaAo2nxkNOXZ.png)
+![image-20230317142455463](./assets/image-20230317142455463.png)
 
 **第 2 步** ：
 
 用于获取`EnableAutoConfigurtion`注解中的 `exclude` 和 `excludeName`。
 
-![img](https://i.loli.net/2021/06/04/PqbZHcf1OhtX9ma.png)
+![image-20230317142417111](./assets/image-20230317142417111.png)
 
 **第 3 步**
 
@@ -161,11 +161,11 @@ AutoConfigurationEntry getAutoConfigurationEntry(AutoConfigurationMetadata autoC
 spring-boot/spring-boot-project/spring-boot-autoconfigure/src/main/resources/META-INF/spring.factories
 ```
 
-![img](https://i.loli.net/2021/06/04/5i7Us43Ggetu9cI.png)
+![image-20230317142436543](./assets/image-20230317142436543.png)
 
 从下图可以看到这个文件的配置内容都被我们读取到了。`XXXAutoConfiguration`的作用就是按需加载组件。
 
-![img](https://i.loli.net/2021/06/04/35Q6H4vr7KO29yS.png)
+![image-20230317142213977](./assets/image-20230317142213977.png)
 
 不光是这个依赖下的`META-INF/spring.factories`被读取到，所有 Spring Boot Starter 下的`META-INF/spring.factories`都会被读取到。
 
@@ -173,7 +173,7 @@ spring-boot/spring-boot-project/spring-boot-autoconfigure/src/main/resources/MET
 
 如果，我们自己要创建一个 Spring Boot Starter，这一步是必不可少的。
 
-![img](https://i.loli.net/2021/06/04/ouQAlIYcTHy2PBt.png)
+![image-20230317142234257](./assets/image-20230317142234257.png)
 
 **第 4 步** ：
 
@@ -181,7 +181,7 @@ spring-boot/spring-boot-project/spring-boot-autoconfigure/src/main/resources/MET
 
 很明显，这是不现实的。我们 debug 到后面你会发现，`configurations` 的值变小了。
 
-![img](https://i.loli.net/2021/06/04/D1HztoL59uwWQbl.png)
+![image-20230317142525900](./assets/image-20230317142525900.png)
 
 因为，这一步有经历了一遍筛选，`@ConditionalOnXXX` 中的所有条件都满足，该类才会生效。
 
@@ -217,27 +217,27 @@ public class RabbitAutoConfiguration {
 
 第一步，创建`threadpool-spring-boot-starter`工程
 
-![img](https://i.loli.net/2021/06/04/O3sfp7hASJvM6lY.png)
+![img](./assets/O3sfp7hASJvM6lY.png)
 
 第二步，引入 Spring Boot 相关依赖
 
-![img](https://i.loli.net/2021/06/04/ZExtVdpulhYFyok.png)
+![img](./assets/ZExtVdpulhYFyok.png)
 
 第三步，创建`ThreadPoolAutoConfiguration`
 
-![img](https://i.loli.net/2021/06/04/T4HC5arxJXm8EAo.png)
+![img](./assets/T4HC5arxJXm8EAo.png)
 
 第四步，在`threadpool-spring-boot-starter`工程的 resources 包下创建`META-INF/spring.factories`文件
 
-![img](https://i.loli.net/2021/06/04/yFQczK8YXTohfpx.png)
+![img](./assets/yFQczK8YXTohfpx.png)
 
 最后新建工程引入`threadpool-spring-boot-starter`
 
-![img](https://i.loli.net/2021/06/04/UQSEwW2NHLRZ4iJ.png)
+![img](./assets/UQSEwW2NHLRZ4iJ.png)
 
 测试通过！！！
 
-![img](https://i.loli.net/2021/06/04/bFPShBNoTYLuVec.png)
+![img](./assets/bFPShBNoTYLuVec.png)
 
 # 4.总结 
 
