@@ -182,7 +182,8 @@ while(rs){
 |epoll|	epoll通过mmap把对应设备文件片断映射到用户空间上, 消息传递不通过内核, 内存与设备文件同步数据.|
 
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201224114704694.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317101444071](./assets/image-20230317101444071.png)
 ***
 ### 参考来自：
+
 [https://www.cnblogs.com/yungyu16/p/13066744.html#%E4%BA%94%E3%80%81select%E3%80%81poll%E3%80%81epoll%E5%8C%BA%E5%88%AB](https://www.cnblogs.com/yungyu16/p/13066744.html#%E4%BA%94%E3%80%81select%E3%80%81poll%E3%80%81epoll%E5%8C%BA%E5%88%AB)
