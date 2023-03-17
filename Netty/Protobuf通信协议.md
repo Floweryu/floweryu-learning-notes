@@ -73,7 +73,7 @@ message Msg {
 
 整个目录结构：
 
-![image-20220529193436412](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202205291934639.png)
+![image-20220529193436412](./assets/202205291934639.png)
 
 测试类：
 

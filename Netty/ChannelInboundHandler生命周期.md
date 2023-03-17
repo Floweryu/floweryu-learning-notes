@@ -83,7 +83,7 @@ public class NettyTest {
 }
 ```
 
-<img src="https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202204271956946.png" alt="image-20220427195619582" style="zoom: 50%;" />
+<img src="./assets/202204271956946.png" alt="image-20220427195619582" style="zoom: 50%;" />
 
 除了`channelRead()`和`channelReadComplete()`两个入站回调方法外，其余六个方法介绍如下：
 

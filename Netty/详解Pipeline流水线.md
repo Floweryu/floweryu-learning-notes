@@ -59,7 +59,7 @@ public void testPipelineInBound() {
 入站处理器 C: 被回调 
 ```
 
-![image-20220427202922780](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202204272029041.png)
+![image-20220427202922780](./assets/202204272029041.png)
 
 ## 2. Pipeline出站处理流程
 
@@ -121,7 +121,7 @@ public class OutPipeline {
 出站处理器 A: 被回调
 ```
 
-![image-20220427204228917](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202204272042063.png)
+![image-20220427204228917](./assets/202204272042063.png)
 
 ## 3. ChannelHandlerContext上下文 ??
 

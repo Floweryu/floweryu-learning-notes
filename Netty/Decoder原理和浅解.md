@@ -2,11 +2,11 @@
 
 是一个抽象类，仅提供了一个框架，继承关系如下：
 
-<img src="https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202205112054829.png" alt="image-20220511205449542" style="zoom:80%;" />
+<img src="./assets/202205112054829.png" alt="image-20220511205449542" style="zoom:80%;" />
 
 解码流程：
 
-![image-20220511205117500](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202205112051566.png)
+![image-20220511205117500](./assets/202205112051566.png)
 
 **实现一个自己的ByteBuf解码器：**
 

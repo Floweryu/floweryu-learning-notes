@@ -1,6 +1,6 @@
 整个IO处理操作环节包括：从通道读数据包、数据包解码、业务处理、目标数据解码、把数据包写到通道，然后由通道发送到对端。
 
-![image-20220502135023159](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202205021350547.png)
+![image-20220502135023159](./assets/202205021350547.png)
 
 ## 1. ChannelInboundHandler通道入站处理器
 

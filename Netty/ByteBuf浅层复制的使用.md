@@ -36,7 +36,7 @@ public void sliceTest() {
 }
 ```
 
-![image-20220511200621818](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202205112006914.png)
+![image-20220511200621818](./assets/202205112006914.png)
 
 调用slice()方法后，新生成的ByteBuf对象，有下面几个重要属性值：
 
@@ -75,7 +75,7 @@ public void duplicateTest() {
 }
 ```
 
-![image-20220511202519992](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202205112025510.png)
+![image-20220511202519992](./assets/202205112025510.png)
 
 ## 浅层复制的问题
 

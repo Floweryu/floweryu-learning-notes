@@ -16,7 +16,7 @@
 
 Netty的反应器类为：NioEventLoop。该类绑定了两个重要的Java成员属性：一个是Thread线程类的成员；一个是Java NIO选择器的成员属性。
 
-![image-20220417145950219](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202204171500651.png)
+![image-20220417145950219](./assets/202204171500651.png)
 
 
 
@@ -24,7 +24,7 @@ Netty的反应器类为：NioEventLoop。该类绑定了两个重要的Java成�
 
 在Netty中，一个EventLoopNetty反应器和NettyChannel通道是一对多的关系：一个反应器可以注册成千上万的通道。
 
-![image-20220417150238161](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202204171502886.png)
+![image-20220417150238161](./assets/202204171502886.png)
 
 ## 三、Netty中Handler处理器
 
@@ -37,7 +37,7 @@ Netty自己的Handler处理器分为两大类：
 
 二者都继承了ChannelHandler处理器接口。
 
-![image-20220417150743507](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202204171507261.png)
+![image-20220417150743507](./assets/202204171507261.png)
 
 #### 3.1 入站处理
 
@@ -83,7 +83,7 @@ Netty设计了一个特殊组件ChannelPipeline(通道流水线)，将绑定到�
 
 Netty规定：入站处理器的Handler执行次序，是从前到后；出站处理器Handler的执行次序，是从后向前。
 
-![image-20220417212814926](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202204172128368.png)
+![image-20220417212814926](./assets/202204172128368.png)
 
 
 
