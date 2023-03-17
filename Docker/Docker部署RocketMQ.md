@@ -73,8 +73,8 @@ docker run -d --name rmqadmin -e "JAVA_OPTS=-Drocketmq.namesrv.addr=服务器外
 
 查看docker运行的容器
 
-![image-20211130224430177](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202111302244579.png)
+![image-20211130224430177](./assets/202111302244579.png)
 
 最后访问`http://服务器外网ip:9999/#/cluster`
 
-![image-20211130224322437](https://raw.githubusercontent.com/Floweryu/typora-img/main/img/202111302243656.png)
+![image-20211130224322437](./assets/202111302243656.png)
