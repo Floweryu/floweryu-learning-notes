@@ -56,7 +56,7 @@ public final class String implements java.io.Serializable, Comparable<String>, C
 
 ### 	`final`和`static`的区别
 `static`作用于成员变量用来表示只保存一份副本，而`final`的作用是用来保证变量不可变。
-![在这里插入图片描述](https://img-blog.csdnimg.cn/2020111515285339.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70#pic_center)
+![image-20230317112911273](./assets/image-20230317112911273.png)
 可以看出，用`static`修饰的变量，在任何实例中都是不变的。甚至编译器会提示一个警告，要求使用`Myclass.staticVal`来获取`static`变量修饰的值。
 
 而用`final`修饰的变量，不同的实例不一样，但在每个实例中它们是不变的。

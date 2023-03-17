@@ -360,7 +360,7 @@ Java 泛型的实现方式不太优雅，但这是因为泛型是在 JDK5 时引
 
 > 向上转型是指用子类实例去初始化父类，这是面向对象中多态的重要表现。
 
-![img](https://i.loli.net/2021/02/26/DusZF6MXL1b2g5O.png)
+![img](./assets/DusZF6MXL1b2g5O.png)
 
 `Integer` 继承了 `Object`；`ArrayList` 继承了 `List`；但是 `List` 却并非继承了 `List`。
 
@@ -636,7 +636,7 @@ public class Example {
 - 利用有限制通配符来提升 API 的灵活性
 - 优先考虑类型安全的异构容器
 
-![img](https://camo.githubusercontent.com/6d20e71b4dc7500c9e2aef1a639de13411755526cf2bbbd72237243d224cd531/687474703a2f2f64756e77752e746573742e757063646e2e6e65742f63732f6a6176612f6a617661636f72652f786d696e642f4a6176612545362542332539422545352539452538422e737667)
+![image-20230317112817415](./assets/image-20230317112817415.png)
 
 ## 10. 参考资料
 
