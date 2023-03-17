@@ -8,8 +8,9 @@
  6. 连接结束
 
 ## 1. DNS解析
+
 **网址到IP地址的转换**。
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201129141346311.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104405714](./assets/image-20230317104405714.png)
 上述图片是查找www.google.com的IP地址过程。**首先在本地域名服务器中查询IP地址**，如果没有找到的情况下，**本地域名服务器会向根域名服务器发送一个请求**，如果根域名服务器也不存在该域名时，**本地域名会向com顶级域名服务器发送一个请求**，依次类推下去。直到最后本地域名服务器得到google的IP地址并把它缓存到本地，供下次查询使用。从上述过程中，可以看出网址的解析是一个从右向左的过程: com -> google.com -> www.google.com。但是你是否发现少了点什么，根域名服务器的解析过程呢？事实上，真正的网址是www.google.com.，并不是我多打了一个.，这个.对应的就是根域名服务器，默认情况下所有的网址的最后一位都是.，既然是默认情况下，为了方便用户，通常都会省略，浏览器在请求DNS的时候会自动加上，所有网址真正的解析过程为: . -> .com -> google.com. -> www.google.com.。
 
 #### DNS缓存
@@ -19,7 +20,7 @@ DNS存在着多级缓存，从离浏览器的距离排序的话，有以下几�
 大型的网站通常由多个服务器，DNS可以返回一个合适的服务器的IP给用户，这种过程就是DNS负载均衡，又叫做DNS重定向。DNS服务器会返回一个跟用户最接近的点的IP地址给用户，CDN节点的服务器负责响应用户的请求，提供所需的内容。
 
 ### 2.TCP连接
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20210310215354404.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104428953](./assets/image-20230317104428953.png)
 #### 2.1 应用层：发送 HTTP 请求
 在前面的步骤我们已经得到服务器的 IP 地址，浏览器会开始构造一个 HTTP 报文，其中包括：
 
@@ -57,7 +58,7 @@ DNS存在着多级缓存，从离浏览器的距离排序的话，有以下几�
 注意：接收方回应是单播。
 
 ### 3. HTTPS协议
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201129153326497.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104437317](./assets/image-20230317104437317.png)
 HTTPS在传输数据之前需要客户端与服务器进行一个握手(TLS/SSL握手)，在握手过程中将确立双方加密传输数据的密码信息。TLS/SSL使用了非对称加密，对称加密以及hash等。
 HTTPS相比于HTTP，虽然提供了安全保证，但是势必会带来一些时间上的损耗，如握手和加密等过程，是否使用HTTPS需要根据具体情况在安全和性能方面做出权衡。
 
@@ -90,7 +91,7 @@ JS的解析是由浏览器中的JS解析引擎完成的。JS是单线程运行�
 JS的执行机制就可以看做是一个主线程加上一个任务队列(task queue)。同步任务就是放在主线程上执行的任务，异步任务是放在任务队列中的任务。所有的同步任务在主线程上执行，形成一个执行栈。异步任务有了运行结果就会在任务队列中放置一个事件；脚本运行时先依次运行执行栈，然后会从任务队列里提取事件，运行任务队列中的任务，这个过程是不断重复的，所以又叫做**事件循环**(Event loop)。
 
 浏览器在解析过程中，如果遇到请求外部资源时，如图像,iconfont,JS等。浏览器将重复1-6过程下载该资源。请求过程是异步的，并不会影响HTML文档进行加载，但是当文档加载过程中遇到JS文件，HTML文档会挂起渲染过程，不仅要等到文档中JS文件加载完毕还要等待解析执行完毕，才会继续HTML的渲染过程。原因是因为JS有可能修改DOM结构，这就意味着JS执行完成前，后续所有资源的下载是没有必要的，这就是JS阻塞后续资源下载的根本原因。CSS文件的加载不影响JS文件的加载，但是却影响JS文件的执行。JS代码执行前浏览器必须保证CSS文件已经下载并加载完毕。
-![在这里插入图片描述](https://img-blog.csdnimg.cn/2020112914091231.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104450227](./assets/image-20230317104450227.png)
 
 ### 参考文章：
 [https://segmentfault.com/a/1190000006879700](https://segmentfault.com/a/1190000006879700)

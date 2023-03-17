@@ -18,17 +18,17 @@ TCP 会在以下两种情况发生超时重传：
 
  - 数据包丢失
  - 确认应答丢失
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130141459518.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104514277](./assets/image-20230317104514277.png)
 
 #### 超时时间应该设置为多少呢？
-![在这里插入图片描述](https://img-blog.csdnimg.cn/2020113014165795.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104522006](./assets/image-20230317104522006.png)
 `RTT` 就是数据从网络一端传送到另一端所需的时间，也就是包的往返时间。
 
 超时重传时间是以 `RTO` （Retransmission Timeout 超时重传时间）表示。
 
 假设在重传的情况下，超时时间 `RTO` 「较长或较短」时，会发生什么事情呢？
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130141826237.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104529122](./assets/image-20230317104529122.png)
 上图中有两种超时时间不同的情况：
 
  - 当超时时间 `RTO 较大`时，重发就慢，丢了老半天才重发，没有效率，性能差；
@@ -36,7 +36,7 @@ TCP 会在以下两种情况发生超时重传：
 
 根据上述的两种情况，我们可以得知，超时重传时间 `RTO 的值应该略大于报文往返 RTT 的值`。
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130141955929.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104537322](./assets/image-20230317104537322.png)
 
 
 好像就是在发送端发包时记下` t0` ，然后接收端再把这个` ack` 回来时再记一个` t1`，于是` RTT = t1 – t0`。没那么简单，这只是一个采样，不能代表普遍情况。
@@ -49,7 +49,7 @@ TCP 会在以下两种情况发生超时重传：
  - 除了采样 RTT，还要采样 RTT 的波动范围，这样就避免如果 RTT 有一个大的波动的话，很难被发现的情况。
 
 RFC6289 建议使用以下的公式计算 RTO：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130142337120.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104545378](./assets/image-20230317104545378.png)
 其中 `SRTT` 是计算平滑的RTT ，`DevRTR` 是计算平滑的RTT 与 最新 RTT 的差距。
 
 在 Linux 下，`α = 0.125，β = 0.25， μ = 1，∂ = 4`。别问怎么来的，问就是大量实验中调出来的。
@@ -65,7 +65,7 @@ RFC6289 建议使用以下的公式计算 RTO：
 ### 快速重传
 TCP 还有另外一种`快速重传（Fast Retransmit）机制`，它`不以时间为驱动，而是以数据驱动重传`。
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130142630195.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104552281](./assets/image-20230317104552281.png)
 在上图，发送方发出了 1，2，3，4，5 份数据：
 
  - 第一份 Seq1 先送到了，于是就 Ack 回 2；
@@ -90,21 +90,21 @@ TCP 还有另外一种`快速重传（Fast Retransmit）机制`，它`不以时�
 
 如下图，发送方收到了三次同样的 ACK 确认报文，于是就会触发快速重发机制，通过 `SACK` 信息发现只有 `200~299` 这段数据丢失，则重发时，就只选择了这个 TCP 段进行重复。
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/2020113014313793.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104559368](./assets/image-20230317104559368.png)
 ### Duplicate SACK
 Duplicate SACK 又称 `D-SACK`，其主要`使用了 SACK 来告诉「发送方」有哪些数据被重复接收了`。
 
 下面举例两个栗子，来说明 `D-SACK` 的作用。
 
 **栗子一号：ACK 丢包**:
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130143256264.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104606398](./assets/image-20230317104606398.png)
 
  - 「接收方」发给「发送方」的两个 ACK 确认应答都丢失了，所以发送方超时后，重传第一个数据包（3000 ~ 3499）
  - **于是「接收方」发现数据是重复收到的，于是回了一个 SACK = 3000~3500**，告诉「发送方」 `3000~3500` 的数据早已被接收了，因为 ACK 都到了 4000 了，已经意味着 4000 之前的所有数据都已收到，所以这个 SACK 就代表着 `D-SACK`。
 - 这样「发送方」就知道了，数据没有丢，是「接收方」的 ACK 确认报文丢了。
 
 **栗子二号：网络延时**:
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130144209609.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104613063](./assets/image-20230317104613063.png)
 
  - 数据包（1000~1499） 被网络延迟了，导致「发送方」没有收到 Ack 1500 的确认报文。
  - 而后面报文到达的三个相同的 ACK 确认报文，就触发了快速重传机制，但是在重传后，被延迟的数据包（1000~1499）又到了「接收方」；
@@ -125,7 +125,7 @@ Duplicate SACK 又称 `D-SACK`，其主要`使用了 SACK 来告诉「发送方�
 
 如果你说完一句话，我在处理其他事情，没有及时回复你，那你不是要干等着我做完其他事情后，我回复你，你才能说下一句话，很显然这不现实。
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130144540369.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104622626](./assets/image-20230317104622626.png)
 
 所以，这样的传输方式有一个缺点：**数据包的往返时间越长，通信的效率就越低**。
 
@@ -136,7 +136,7 @@ Duplicate SACK 又称 `D-SACK`，其主要`使用了 SACK 来告诉「发送方�
 窗口的实现实际上是操作系统开辟的一个缓存空间，发送方主机在等到确认应答返回之前，必须在缓冲区中保留已发送的数据。如果按期收到确认应答，此时数据就可以从缓存区清除。
 
 假设窗口大小为 `3 `个 TCP 段，那么发送方就可以「连续发送」` 3 `个 TCP 段，并且中途若有 ACK 丢失，可以通过「下一个确认应答进行确认」。如下图：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130144701173.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104630705](./assets/image-20230317104630705.png)
 图中的 ACK 600 确认应答报文丢失，也没关系，因为可以通过下一个确认应答进行确认，只要发送方收到了 ACK 700 确认应答，就意味着 700 之前的所有数据「接收方」都收到了。这个模式就叫**累计确认**或者**累计应答**。
 
 ### 窗口大小由哪一方决定？
@@ -150,7 +150,7 @@ TCP 头里有一个字段叫 Window，也就是窗口大小。
 
 我们先来看看发送方的窗口，下图就是发送方缓存的数据，根据处理的情况分成四个部分，其中深蓝色方框是发送窗口，紫色方框是可用窗口：
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/202011301449201.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104637001](./assets/image-20230317104637001.png)
 - #1 是已发送并收到 ACK确认的数据：1~31 字节
 - #2 是已发送但未收到 ACK确认的数据：32~45 字节
 - #3 是未发送但总大小在接收方处理范围内（接收方还有空间）：46~51字节
@@ -158,13 +158,15 @@ TCP 头里有一个字段叫 Window，也就是窗口大小。
 
 在下图，当发送方把数据「全部」都一下发送出去后，可用窗口的大小就为 0 了，表明可用窗口耗尽，在没收到 ACK 确认之前是无法继续发送数据了。
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130145018460.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104643102](./assets/image-20230317104643102.png)
 
 在下图，当收到之前发送的数据 `32~36`字节的 ACK 确认应答后，如果发送窗口的大小没有变化，则**滑动窗口往右边移动 5 个字节，因为有 5 个字节的数据被应答确认**，接下来 `52~56 `字节又变成了可用窗口，那么后续也就可以发送 `52~56` 这 5 个字节的数据了。
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130145108245.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104650218](./assets/image-20230317104650218.png)
+
 ### 程序是如何表示发送方的四个部分的呢？
 TCP 滑动窗口方案使用三个指针来跟踪在四个传输类别中的每一个类别中的字节。其中两个指针是绝对指针（指特定的序列号），一个是相对指针（需要做偏移）。
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130145146988.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104657685](./assets/image-20230317104657685.png)
+
 - `SND.WND`：表示发送窗口的大小（大小是由接收方指定的）；
 
 - `SND.UNA`：是一个绝对指针，它指向的是已发送但未收到确认的第一个字节的序列号，也就是 #2 的第一个字节。
@@ -184,7 +186,7 @@ TCP 滑动窗口方案使用三个指针来跟踪在四个传输类别中的每�
  - #3 是未收到数据但可以接收的数据
  - #4 未收到数据并不可以接收的数据
 
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130145338889.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104704605](./assets/image-20230317104704605.png)
 
 接收窗口
 其中三个接收部分，使用两个指针进行划分:

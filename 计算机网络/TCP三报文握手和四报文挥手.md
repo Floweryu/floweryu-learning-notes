@@ -1,5 +1,5 @@
 ﻿## 三报文“握手”
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20200621160425520.png)
+![在这里插入图片描述](./assets/20200621160425520.png)
 
 TCP规定：`SYN=1`的报文段$\color{red}{不能携带数据}$。普通的TCP报文段可以携带数据，但如果不携带数据，则不消耗序号。
 
@@ -17,7 +17,7 @@ $\color{red}{不可以}$。假设TCP客户进程发出一个TCP连接请求报�
 如果采用的是三次握手，就算那一次失效的报文传送过来了，服务器收到了失效的报文并回复了确认报文，但是客户端不会再次发出确认。由于服务器收不到确认，就知道客户端并没有请求连接。
 
 ## 四报文“挥手”
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20200621160452735.png)
+![在这里插入图片描述](./assets/20200621160452735.png)
 
 TCP规定：终止位FIN=1的报文段即使不携带数据，也要消耗一个序号。
 
@@ -45,12 +45,12 @@ TCP还设有一个保活计时器，显然，客户端如果出现故障，服�
   
 
 。若一连发送10个探测报文仍然没反应，服务器就认为客户端出了故障，接着就关闭连接。
-  
-  ***
+
+***
 
 ***
 ## 综述：
-![在这里插入图片描述](https://img-blog.csdnimg.cn/20201130151146342.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3dlaXhpbl80MzIwNzAyNQ==,size_16,color_FFFFFF,t_70)
+![image-20230317104915384](./assets/image-20230317104915384.png)
 
 - `CLOSED`：表示初始状态。对服务端和C客户端双方都一样。
 - `LISTEN`：表示监听状态。服务端调用了listen函数，可以开始accept连接了。
