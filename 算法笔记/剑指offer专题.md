@@ -299,3 +299,57 @@ class Solution {
 }
 ```
 
+## 剑指 Offer 11. 旋转数组的最小数字
+
+> 把一个数组最开始的若干个元素搬到数组的末尾，我们称之为数组的旋转。
+>
+> 给你一个可能存在 **重复** 元素值的数组 `numbers` ，它原来是一个升序排列的数组，并按上述情形进行了一次旋转。请返回旋转数组的**最小元素**。例如，数组 `[3,4,5,1,2]` 为 `[1,2,3,4,5]` 的一次旋转，该数组的最小值为 1。 
+>
+> 注意，数组 `[a[0], a[1], a[2], ..., a[n-1]]` 旋转一次 的结果为数组 `[a[n-1], a[0], a[1], a[2], ..., a[n-2]]` 。
+>
+> ```
+> 输入：numbers = [3,4,5,1,2]
+> 输出：1
+> ```
+>
+> ```
+> 输入：numbers = [2,2,2,0,1]
+> 输出：0
+> ```
+
+### 题解：二分查找
+
+**思路**:
+
+以数组最右侧的元素x为参考比较：**在最小值右侧的元素，一定小于等于x；在最小值左侧的元素，一定大于等于x。**
+
+以`mid`为中点，左边界为`low`，右边界为`high`。然后将中值元素和`nums[high]`比较：
+
+- 如果`nums[mid] < nums[high]`：则`nums[mid]`是最小值右侧元素，二分查找可以忽略右边部分，即`right = mid`；
+- 如果`nums[mid] > nums[high]`：则`nums[mid]`是最小值左侧元素，二分查找可以忽略左侧部分，即`left = mid + 1`；
+- 如果`nums[mid] == nums[high]`：则不能判断`nums[mid]`在最小值左侧还是右侧，但不管`nums[high]`是不是最小值，都有一个值替代它，所以忽略该值即可。
+
+
+```java
+public int minArray(int[] numbers) {
+    int left = 0;
+    int right = numbers.length - 1;
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        // 为什么以right处元素为参考？
+        // right处元素一定小于或等于0位置元素, 比right处还小的元素一定在最小值和right处元素之间，比right处大的元素一定在0到最小值之间
+        if (numbers[mid] < numbers[right]) {
+            // 说明nums[mid]在最小值右侧, 则right-mid这部分可以丢弃
+            right = mid;
+        } else if (numbers[mid] > numbers[right]){
+            // 说明nums[mid]在最小值左侧, 则left~mid这部分可以丢弃
+            left = mid + 1;
+        } else {
+            // 如果相等，则不能确定在最小值左侧还是右侧，但是可以忽略这个相等值
+            right -= 1;
+        }
+    }
+    return numbers[right];
+}
+```
+
