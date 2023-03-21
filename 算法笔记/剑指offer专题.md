@@ -14,7 +14,7 @@
 >
 > **限制：**2 <= n <= 100000
 
-### 方法一： 集合Set
+### 题解一： 集合Set
 
 使用集合记录数组各个数字，遇到重复数字直接返回。
 
@@ -33,7 +33,7 @@ public int findRepeatNumber(int[] nums) {
 }
 ```
 
-### 方法二： 原地交换数字
+### 题解二： 原地交换数字
 
 1. 遍历数组 nums ，设索引初始值为 i=0 :
 
@@ -85,7 +85,7 @@ public int findRepeatNumber(int[] nums) {
 >
 > 给定 target = `20`，返回 `false`。
 
-### 方法一：二分查找
+### 题解一：二分查找
 
 由于矩阵的行和列都是有序的，所以可以遍历行或者列使用二分查找来判断。
 
@@ -112,7 +112,7 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
 }
 ```
 
-### 方法二： 二叉搜索树思想（消去行列）
+### 题解二： 二叉搜索树思想（消去行列）
 
 如下图所示：将矩阵逆时针旋转，可以发现其类似于**二叉搜索树**。即每个元素，左分支元素更小，右分支元素更大。
 
@@ -160,7 +160,7 @@ public boolean findNumberIn2DArray(int[][] matrix, int target) {
 > 输出："We%20are%20happy."
 > ```
 
-### 方法一：直接调用replace方法
+### 题解一：直接调用replace方法
 
 ```java
 public String replaceSpace(String s) {
@@ -168,7 +168,7 @@ public String replaceSpace(String s) {
 }
 ```
 
-### 方法二：遍历替换
+### 题解二：遍历替换
 
 ```java
 public String replaceSpace(String s) {
@@ -197,7 +197,7 @@ public String replaceSpace(String s) {
 > 输出：[2,3,1]
 > ```
 
-### 方法：普通遍历
+### 题解：普通遍历
 
 ```java
 public int[] reversePrint(ListNode head) {
@@ -208,6 +208,94 @@ public int[] reversePrint(ListNode head) {
     }
     Collections.reverse(res);
     return res.stream().mapToInt(Integer::intValue).toArray();
+}
+```
+
+## 剑指 Offer 51. 数组中的逆序对
+
+> https://leetcode.cn/problems/shu-zu-zhong-de-ni-xu-dui-lcof/description/
+>
+> 在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组，求出这个数组中的逆序对的总数。
+>
+> ```
+> 输入: [7,5,6,4]
+> 输出: 5
+> ```
+
+### 题解一：归并排序
+
+**思路**：求逆序对跟归并排序有啥关系？？？
+
+**归并排序和逆序对关系**，比如下面例子：
+
+假设有两个已排序的序列等待合并，`L={8,12,16,22,100}  R={9,26,55,64,91}`。开始我们用指针 `lPtr = 0` 指向 L 的首部，`rPtr = 0` 指向 R 的头部。记已经合并好的部分为M。如下：
+
+```java
+L = [8, 12, 16, 22, 100]   R = [9, 26, 55, 64, 91]  M = []
+     |                          |
+   lPtr                       rPtr
+```
+
+发现`lPtr`指向的元素小于`rPtr`指向的元素，于是把`lPtr`指向的元素放入M，并把`lPtr`向后移一位。如下：
+
+```java
+L = [8, 12, 16, 22, 100]   R = [9, 26, 55, 64, 91]  M = [8]
+        |                       |
+      lPtr                     rPtr
+```
+
+这时把8放入答案，但是发现右边没有数比8小，所以8对逆序对总数【贡献】为0。
+
+继续合并，**此时发现`lPtr`所指的位置比`rPtr`大，由于归并排序每个子数组都是有序的，则对于`rPtr`而言，`lPtr`右侧的所有数都比它大，即`lPtr`右侧每个数都能和`rPtr`构成一个逆序对。贡献为`mid - lPtr + 1`。**
+
+***
+
+利用上述思路，可以在归并的过程中计算逆序对的个数。
+
+```java
+class Solution {
+    int res = 0;
+    public int reversePairs(int[] nums) {
+        this.res = 0;
+        mergeSort(nums, 0, nums.length - 1);
+        return res;
+    }
+    
+    public void mergeSort(int[] nums, int left, int right) {
+        if (left < right) {
+            int mid = left + (right - left) / 2;
+            mergeSort(nums, left, mid);
+            mergeSort(nums, mid + 1, right);
+            merge(nums, left, mid, right);
+        }
+    }
+    
+    public void merge(int[] nums, int left, int mid, int right) {
+        int i = left, j = mid + 1, k = 0;
+        int[] tmp = new int[right - left + 1];
+        while (i <= mid && j <= right) {
+            if (nums[i] > nums[j]) {
+                tmp[k++] = nums[j++];
+                // 右边当前值比左边当前值都要小，则右边当前值对于左边剩余部分的mid-i+1个数都是逆序
+                res += (mid - i + 1);
+            } else {
+                // 左边当前值小于右边当前值, 不是逆序
+                tmp[k++] = nums[i++];
+            }
+        }
+        
+        while (i <= mid) {
+            tmp[k++] = nums[i++];
+        }
+        
+        while (j <= right) {
+            tmp[k++] = nums[j++];
+        }
+    
+        for(int t = 0; t < tmp.length; t++){
+            nums[left + t] = tmp[t];
+        }
+    }
 }
 ```
 
