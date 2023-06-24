@@ -1,4 +1,4 @@
-### 设置默认的属性编辑器（可扩展）
+## 设置默认的属性编辑器（可扩展）
 
 核心方法：`org.springframework.beans.support.ResourceEditorRegistrar#registerCustomEditors`
 
@@ -35,7 +35,7 @@ public void registerCustomEditors(PropertyEditorRegistry registry) {
 2. 为了让spring能识别编辑器，需要自定义一个类实现`PropertyEditorRegistrar`接口，该类的作用是将属性编辑器注册到spring中。参考`ResourceEditorRegistrar`类。
 3. 为了让spring识别注册器，需要将注册器注册到spring中。调用`org.springframework.beans.factory.config.CustomEditorConfigurer#setPropertyEditorRegistrars`方法。
 
-### 如何自定义
+### 如何自定义？
 
 #### 1. 首先创建两个包装类：
 
@@ -154,3 +154,75 @@ public void properTest() {
 输出：
 
 > Address{province='湖北省', city='襄阳市', town='谷城县'}
+
+## Spring自定义postProcessBeanFactory
+
+### 源码位置
+
+`org.springframework.context.support.AbstractApplicationContext#postProcessBeanFactory`
+
+可以看到在`AbstractApplicationContext`内部，该接口实现是空的。但spring支持我们自定义该接口。
+
+```java
+protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+}
+```
+
+### 自定义该接口
+
+**只需要在继承了`AbstractApplicationContext`类的子类中重写该方法即可。**
+
+比如下面自定义一个`MyClassPathXmlApplicaionContext`继承`ClassPathXmlApplicationContext`，就可以实现该方法：
+
+```java
+public class MyClassPathXmlApplicaionContext extends ClassPathXmlApplicationContext {
+	
+	public MyClassPathXmlApplicaionContext(String... configLocations) {
+		super(configLocations);
+	}
+	
+	@Override
+	protected void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
+		System.out.println("扩展实现postPrecessBeanFactory");
+	}
+}
+```
+
+## Spring自定义BeanFactoryPostProcessor
+
+在源码中，可以在该方法中`org.springframework.context.support.PostProcessorRegistrationDelegate#invokeBeanFactoryPostProcessors`
+
+中有对BeanFactoryPostProcessor进行处理，但是如果没有自定义BeanFactoryPostProcessor，在该方法中的`beanFactoryPostProcessors`是空的。下面来自定义一个BeanFactoryPostProcessor。
+
+### 自定义
+
+先创建一个自定义类
+
+```java
+public class MyBeanFactoryPostProcessor implements BeanFactoryPostProcessor {
+	@Override
+	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
+		System.out.println("自定义postProcessBeanFactory");
+	}
+}
+```
+
+然后添加到容器中
+
+```java
+public class MyClassPathXmlApplicaionContext extends ClassPathXmlApplicationContext {
+	
+	public MyClassPathXmlApplicaionContext(String... configLocations) {
+		super(configLocations);
+	}
+
+	@Override
+	protected void customizeBeanFactory(DefaultListableBeanFactory beanFactory) {
+
+        // 添加自定义BeanFactoryPostProcessor
+		super.addBeanFactoryPostProcessor(new MyBeanFactoryPostProcessor());
+		super.customizeBeanFactory(beanFactory);
+	}
+}
+```
+
